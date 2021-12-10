@@ -9,6 +9,9 @@
         <input type='submit' value='войти' />
         <input type='reset' value='сбросить' />
       </fieldset>
+      <fieldset v-if='confirm'>
+        <label>{{ username }}. Это Вы?</label>
+      </fieldset>
     </form>
   </div>
 </template>
@@ -20,9 +23,11 @@
     name: 'Login',
 
     props: {
+
       base: {
         type: String
       },
+
       queryLogin: {
         type: String,
         default: '/api/get-resident-by-id',
@@ -30,7 +35,7 @@
     },
 
     data() {
-      return { id: null }; 
+      return { id: null, confirm: false, username: 'John Johnson' }; 
     },
 
     methods: {
@@ -42,6 +47,8 @@
         if ( login_response.status == 200 ) {
           let user = await login_response.json();
           console.log( user );
+          this.username = user.name;
+          this.confirm = true;
         }
       },
     }
