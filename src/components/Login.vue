@@ -20,9 +20,12 @@
     name: 'Login',
 
     props: {
+      base: {
+        type: String
+      },
       queryLogin: {
         type: String,
-        default: '/alice/api/get-resident-by-id',
+        default: '/api/get-resident-by-id',
       },
     },
 
@@ -34,7 +37,7 @@
       login: async function( submit_event: Event ) {
         submit_event.preventDefault();
         console.log( `login:${this.id}` );
-        let login_response = await fetch( `${this.queryLogin}/${this.id}`, { method: 'GET' } );
+        let login_response = await fetch( `http://localhost:2154/alice${this.queryLogin}/${this.id}`, { method: 'GET' } );
         console.log( login_response );
         if ( login_response.status == 200 ) {
           let user = await login_response.json();

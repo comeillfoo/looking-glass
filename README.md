@@ -20,5 +20,11 @@ npm run build
 npm run lint
 ```
 
+### Deploy
+```
+npm run build
+scp -P 2222 -r ./dist s284733@se.ifmo.ru:/home/s284733/public_html/
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
