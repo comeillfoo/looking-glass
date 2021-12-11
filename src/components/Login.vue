@@ -7,10 +7,12 @@
       </fieldset>
       <fieldset>
         <input type='submit' value='войти' />
-        <input type='reset' value='сбросить' />
+        <input type='reset' value='сбросить' @click='reset' />
       </fieldset>
-      <fieldset v-if='confirm'>
-        <label>{{ username }}. Это Вы?</label>
+      <fieldset v-if='is_confirmed'>
+        <label><h4>{{ username }}. Это Вы?</h4></label>
+        <button type='button' @click='confirm'>да</button>
+        <button type='button' @click='reset'>нет</button>
       </fieldset>
     </form>
   </div>
@@ -25,7 +27,7 @@
     props: {
 
       base: {
-        type: String
+        type: String,
       },
 
       queryLogin: {
@@ -34,8 +36,9 @@
       },
     },
 
+
     data() {
-      return { id: null, confirm: false, username: 'John Johnson' }; 
+      return { id: null, is_confirmed: false, username: 'John Johnson', user: null }; 
     },
 
     methods: {
@@ -47,10 +50,20 @@
         if ( login_response.status == 200 ) {
           let user = await login_response.json();
           console.log( user );
+          console.log( typeof user );
           this.username = user.name;
-          this.confirm = true;
+          this.user = user;
+          this.is_confirmed = true;
         }
       },
+
+      reset: function( ) {
+        this.is_confirmed = false;
+      },
+
+      confirm: function( ) {
+        this.$emit( 'confirmed', { confirm: false, user: this.user } );
+      }
     }
   });
 </script>
