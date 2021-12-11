@@ -49,14 +49,25 @@
     <section id='to-registration' class='section--shrinked'>
       <h2 class='header header--underlined' >прописки</h2>
       <div class='container--left-shifted'>
-        <ul>
-          <li v-for='registration in registrations' :key='registration.id'>
-            {{ registration.id }}
-            {{ registration.issueDate }}
-            {{ registration.expiryDate }}
-            {{ registration.fkKingdomId }}
-          </li>
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>дата выпуска</th>
+              <th>дата окончания</th>
+              <th>масть королевства</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for='( registration, idx ) in registrations' :key='registration.id'>
+              <td>{{ idx + 1 }}</td>
+              <td>{{ registration.issueDate }}</td>
+              <td>{{ registration.expiryDate == null? 'бессрочно' : registration.expiryDate }}</td>
+              <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == registration.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+            </tr>
+          </tbody>
+        </table>
     </div>
     </section>
 
@@ -124,6 +135,11 @@
       queryWeapons: {
         type: String,
         default: '/api/get-weapons-by-resident-id'
+      },
+
+      queryKingdoms: {
+        type: String,
+        default: '/api/get-kingdoms'
       }
     },
 
@@ -132,6 +148,7 @@
         registrations: [],
         tools: [],
         weapons: [],
+        kingdoms: []
       };
     },
 
@@ -169,7 +186,19 @@
           console.log( typeof weapons );
           this.weapons = weapons;
         }
-      }
+      },
+
+      receive_kingdoms: async function( ) {
+        console.log( `trying to receive kingdoms` );
+        let kingdoms_response = await fetch( `http://localhost:2154/alice${this.queryKingdoms}`, { method: 'GET' } );
+        console.log( kingdoms_response );
+        if ( kingdoms_response.status == 200 ) {
+          let kingdoms = await kingdoms_response.json();
+          console.log( kingdoms );
+          console.log( typeof kingdoms );
+          this.kingdoms = kingdoms;
+        } 
+      },
     },
 
     computed: {
@@ -179,6 +208,7 @@
     },
 
     async mounted() {
+      await this.receive_kingdoms();
       await this.receive_registrations( this.user.id );
       if ( this.is_gardener )
         await this.receive_tools( this.user.id );
