@@ -25,10 +25,19 @@
                 <span class='field--bolded field--capitalized'>имя</span>: <span>{{ user.name }}</span>
               </li>
               <li>
-                <span class='field--bolded field--capitalized'>пол</span>: <span>{{ user.fkSexName }}</span>
+                <span class='field--bolded field--capitalized'>пол</span>: 
+                <!-- <span class='colorized' v-if="user.fkSexName == 'мужчина'">&#9818;</span>
+                <span class='colorized' v-else-if="user.fkSexName == 'женщина'">&#9819;</span>
+                <span class='colorized' v-else >&#9822;</span> -->
+                <span>{{ user.fkSexName }}</span>
               </li>
               <li>
-                <span class='field--bolded field--capitalized'>масть</span>: <span>{{ user.fkSuitName }}</span>
+                <span class='field--bolded field--capitalized'>масть</span>: 
+                <!-- <span class='colorized' v-if="user.fkSuitName == 'черви'">&#9829;</span>
+                <span class='colorized' v-if="user.fkSuitName == 'трефы'">&#9827;</span>
+                <span class='colorized' v-if="user.fkSuitName == 'пики'" >&#9824;</span>
+                <span class='colorized' v-if="user.fkSuitName == 'бубны'">&#9830;</span> -->
+                <span>{{ user.fkSuitName }}</span>
               </li>
               <li>
                 <span class='field--bolded field--capitalized'>роль</span>: <span>{{ user.fkRoleName }}</span>
