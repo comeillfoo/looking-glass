@@ -40,8 +40,13 @@
 </script>
 
 <style>
+
   *, *:after, *:before {
     box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
   }
 
   #app {
@@ -49,14 +54,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
+    color: #58595B;
   }
 
   .box {
     display: inline-block;
     padding: .8rem;
-    border: solid 2px dimgray;
+    vertical-align: top;
+  }
+
+  .box--bordered {
+    border: solid 2px #58595B;
   }
 
   .box-rounded {

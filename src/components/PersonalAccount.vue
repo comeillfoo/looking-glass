@@ -1,65 +1,88 @@
 <template>
-    <nav>
-      <ul>
-        <li><a href='#personal'>личная информация</a></li>
-        <li><a href='#residences'>прописки</a></li>
-        <li><a href='#statistics'>статистика</a></li>
+    <nav class='navigate navigate--underlined'>
+      <ul class='box filler'>
+        <li class='panel'><a class='goto' href='#to-personal'>личная информация</a></li>
+        <li class='panel'><a class='goto' href='#to-registration'>прописки</a></li>
+        <li class='panel'><a class='goto' href='#to-statistics'>статистика</a></li>
+        <li class='panel' v-show='is_gardener'><a class='goto' href='#to-tools'>инструменты</a></li>
+        <li class='panel' v-show='is_soldier'><a class='goto' href='#to-weapons'>оружие</a></li>
+        <li class='panel' v-show='is_leader'><a class='goto' href='#to-editor'>редактор</a></li>
       </ul>
+      <div class='box filler'>
+        <h3 class='header--shrinked'>Добро пожаловать, {{ user.name }}!</h3>
+      </div>
     </nav>
-    <section id='personal'>
-      <h1>личная информация</h1>
-      <div>
-          <div class='box--left-aligned'>
-            <img alt='logo' />
+    <section id='to-personal' class='section--shrinked'>
+      <h1 class='header header--underlined header--shrinked'>личная информация</h1>
+      <div class='container container--left-shifted'>
+          <div class='box box--left-aligned box--filler-20'>
+            <img alt='logo' src='@/assets/images/avatars/queen.jpg' />
           </div>
-          <div class='box--left-aligned'>
+          <div class='box box--left-aligned box--filler-80 box--sticked-right'>
+            <h2 class='header--underlined'><span class='field--bolded field--capitalized'>идентификационный номер</span>: <span>{{ user.id }}</span></h2>
             <ul>
-              <li>ИД: {{ user.id }}</li>
-              <li>Имя: {{ user.name }}</li>
-              <li>Пол: <img alt='sex'  /> {{ user.fkSexName }}</li>
-              <li>Масть: <img alt='suit' /> {{ user.fkSuitName }}</li>
-              <li>Должность: {{ user.fkRoleName }}</li>
+              <li>
+                <span class='field--bolded field--capitalized'>имя</span>: <span>{{ user.name }}</span>
+              </li>
+              <li>
+                <span class='field--bolded field--capitalized'>пол</span>: <span>{{ user.fkSexName }}</span>
+              </li>
+              <li>
+                <span class='field--bolded field--capitalized'>масть</span>: <span>{{ user.fkSuitName }}</span>
+              </li>
+              <li>
+                <span class='field--bolded field--capitalized'>роль</span>: <span>{{ user.fkRoleName }}</span>
+              </li>
             </ul>
           </div>
       </div>
     </section>
-    <section id='show-registrations'>
-      <h2>прописки</h2>
-      <ul>
-        <li v-for='registration in registrations' :key='registration.id'>
-          {{ registration.id }}
-          {{ registration.issueDate }}
-          {{ registration.expiryDate }}
-          {{ registration.fkKingdomId }}
-        </li>
-      </ul>
+    <section id='to-registration' class='section--shrinked'>
+      <h2 class='header header--underlined' >прописки</h2>
+      <div class='container--left-shifted'>
+        <ul>
+          <li v-for='registration in registrations' :key='registration.id'>
+            {{ registration.id }}
+            {{ registration.issueDate }}
+            {{ registration.expiryDate }}
+            {{ registration.fkKingdomId }}
+          </li>
+        </ul>
+    </div>
     </section>
 
-    <section id='show-tools' v-if='is_gardener'>
-      <h2>инструменты</h2>
-      <ul>
-        <li v-for='tool in tools' :key='tool.id'>
-          {{ tool.name }}
-        </li>
-      </ul>
+    <section id='to-tools' class='section--shrinked' v-if='is_gardener'>
+      <h2 class='header header--underlined'>инструменты</h2>
+      <div class='container--left-shifted'>
+        <ul>
+          <li v-for='tool in tools' :key='tool.id'>
+            {{ tool.name }}
+          </li>
+        </ul>
+      </div>
     </section>
 
-    <section id='show-weapons' v-if='is_soldier' >
-      <h2>оружие</h2>
-      <ul>
-        <li v-for='weapon in weapons' :key='weapon.id'>
-          {{ weapon.name }}
-        </li>
-      </ul>
+    <section id='to-weapons' class='section--shrinked' v-if='is_soldier' >
+      <h2 class='header header--underlined'>оружие</h2>
+      <div class='container--left-shifted'>
+        <ul>
+          <li v-for='weapon in weapons' :key='weapon.id'>
+            {{ weapon.name }}
+          </li>
+        </ul>
+      </div>
     </section>
 
-    <section id='statistics'>
-      <h2>статистика</h2>
+    <section id='to-statistics' class='section--shrinked'>
+      <h2 class='header header--underlined'>статистика</h2>
+      <div class='container--left-shifted'>
+      </div>
     </section>
 
-    <section id='edit' v-if='is_leader'>
-      <h2>редактирвать</h2>
-
+    <section id='to-editor' class='section--shrinked' v-if='is_leader'>
+      <h2 class='header header--underlined'>редактор</h2>
+      <div class='container--left-shifted'>
+      </div>
     </section>
 </template>
 
@@ -162,5 +185,92 @@
 
   .box--left-aligned {
     text-align: left;
+  }
+
+  .box--filler-20 {
+    width: 20%;
+  }
+
+  .box--filler-80 {
+    width: 80%;
+  }
+
+  .box--sticked-right {
+    padding-right: 0;
+  }
+
+  .panel {
+    display: inline-block;
+  }
+
+  .header {
+    text-align: left;
+    text-transform: capitalize;
+    padding-left: 0.95rem;
+    color: #6593A6;
+  }
+
+  .header--underlined {
+    border-bottom: 1px solid #58595B;
+    line-height: 2.5rem;
+  }
+
+  .header--shrinked {
+    margin: 0;
+    padding: 0.675rem 1.28rem;
+  }
+
+  .navigate {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .navigate--underlined {
+    border-bottom: 1px solid #58595B;
+  }
+
+  .filler {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  .goto {
+    display: block;
+    text-decoration: none;
+    padding: 0.8rem 1.28rem;
+    color: #6593A6;
+  }
+
+  .goto:hover {
+    background-color: #F2F2F2;
+  }
+
+  .section--shrinked {
+    padding: 0rem 2.56rem;
+  }
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .container--left-shifted {
+    text-align: left;
+  }
+
+  .field--capitalized {
+    text-transform: capitalize;
+  }
+
+  .field--bolded {
+    font-weight: 600;
+  }
+
+  .field--right-aligned {
+    text-align: right;
   }
 </style>
