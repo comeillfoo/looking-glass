@@ -1,6 +1,6 @@
 <template>
   <Login @confirmed='confirmed' :base='base' v-if='is_not_logged' />
-  <PersonalAccount :base='base' :user='user' v-else />
+  <PersonalAccount @confirmed='confirmed' :base='base' :user='user' v-else />
 </template>
 
 <script lang="ts">

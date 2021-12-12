@@ -7,6 +7,7 @@
         <li class='panel' v-show='is_gardener'><a class='goto' href='#to-tools'>инструменты</a></li>
         <li class='panel' v-show='is_soldier'><a class='goto' href='#to-weapons'>оружие</a></li>
         <li class='panel' v-show='is_leader'><a class='goto' href='#to-editor'>редактор</a></li>
+        <li class='panel'><a class='goto' @click='logout'>выход</a></li>
       </ul>
       <div class='box filler'>
         <h3 class='header--shrinked'>Добро пожаловать, {{ user.name }}!</h3>
@@ -15,10 +16,10 @@
     <section id='to-personal' class='section--shrinked'>
       <h1 class='header header--underlined header--shrinked'>личная информация</h1>
       <div class='container container--left-shifted'>
-          <div class='box box--left-aligned box--filler-20'>
-            <img alt='logo' src='@/assets/images/avatars/queen.jpg' />
+          <div class='box box--left-aligned box--filler-12'>
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/queen.jpg' />
           </div>
-          <div class='box box--left-aligned box--filler-80 box--sticked-right'>
+          <div class='box box--left-aligned box--filler-88 box--sticked-right'>
             <h2 class='header--underlined'><span class='field--bolded field--capitalized'>идентификационный номер</span>: <span>{{ user.id }}</span></h2>
             <ul>
               <li>
@@ -49,8 +50,8 @@
     <section id='to-registration' class='section--shrinked'>
       <h2 class='header header--underlined' >прописки</h2>
       <div class='container--left-shifted'>
-        <table>
-          <thead>
+        <table class='table--centred table--expanded'>
+          <thead class='row--underlined'>
             <tr>
               <th>№</th>
               <th>дата выпуска</th>
@@ -59,7 +60,7 @@
             </tr>
           </thead>
 
-          <tbody>
+          <tbody class='row--underlined'>
             <tr v-for='( registration, idx ) in registrations' :key='registration.id'>
               <td>{{ idx + 1 }}</td>
               <td>{{ registration.issueDate }}</td>
@@ -74,22 +75,46 @@
     <section id='to-tools' class='section--shrinked' v-if='is_gardener'>
       <h2 class='header header--underlined'>инструменты</h2>
       <div class='container--left-shifted'>
-        <ul>
-          <li v-for='tool in tools' :key='tool.id'>
-            {{ tool.name }}
-          </li>
-        </ul>
+        <table class='table--centred table--expanded'>
+          <thead class='row--underlined'>
+            <tr>
+              <th>№</th>
+              <th>название</th>
+              <th>масть королевства</th>
+            </tr>
+          </thead>
+
+          <tbody class='row--underlined'>
+            <tr v-for='( tool, idx ) in tools' :key='tool.id'>
+              <td>{{ idx + 1 }}</td>
+              <td>{{ tool.name }}</td>
+              <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == tool.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
     <section id='to-weapons' class='section--shrinked' v-if='is_soldier' >
       <h2 class='header header--underlined'>оружие</h2>
       <div class='container--left-shifted'>
-        <ul>
-          <li v-for='weapon in weapons' :key='weapon.id'>
-            {{ weapon.name }}
-          </li>
-        </ul>
+        <table class='table--centred table--expanded'>
+          <thead class='row--underlined'>
+            <tr>
+              <th>№</th>
+              <th>название</th>
+              <th>масть королевства</th>
+            </tr>
+          </thead>
+
+          <tbody class='row--underlined'>
+            <tr v-for='( weapon, idx ) in weapons' :key='weapon.id'>
+              <td>{{ idx + 1 }}</td>
+              <td>{{ weapon.name }}</td>
+              <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == weapon.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -199,6 +224,10 @@
           this.kingdoms = kingdoms;
         } 
       },
+
+      logout: function() {
+          this.$emit( 'confirmed', { confirm: true, user: null } );
+      },
     },
 
     computed: {
@@ -226,16 +255,21 @@
     text-align: left;
   }
 
-  .box--filler-20 {
-    width: 20%;
+  .box--filler-12 {
+    width: 12%;
   }
 
-  .box--filler-80 {
-    width: 80%;
+  .box--filler-88 {
+    width: 88%;
   }
 
   .box--sticked-right {
     padding-right: 0;
+  }
+
+  .img--vertical-centre-aligned {
+    padding-top: 2.8em;
+    padding-bottom: 2.8em;
   }
 
   .panel {
@@ -301,6 +335,21 @@
     text-align: left;
   }
 
+  .table--centred {
+    margin: 0 auto;
+  }
+
+  .table--expanded {
+    border-spacing: 1.8rem;
+    border-collapse: collapse;
+  }
+
+  .table--expanded td,
+  .table--expanded th {
+    padding: 1rem 4rem;
+    text-align: left;
+  }
+
   .field--capitalized {
     text-transform: capitalize;
   }
@@ -311,5 +360,13 @@
 
   .field--right-aligned {
     text-align: right;
+  }
+
+  .img--inherited {
+    width: 100%;
+  }
+
+  .row--underlined {
+    border-bottom: 1px solid #58595B;
   }
 </style>
