@@ -23,7 +23,11 @@
             <h2 class='header--underlined'><span class='field--bolded field--capitalized'>идентификационный номер</span>: <span>{{ user.id }}</span></h2>
             <ul>
               <li>
-                <span class='field--bolded field--capitalized'>имя</span>: <span>{{ user.name }}</span>
+                <span class='field--bolded field--capitalized'>имя</span>: <span v-if='!is_name_edit_mode_enabled'>{{ user.name }}</span>
+                <span v-if='!is_name_edit_mode_enabled'><button type='button' @click='set_name_edit_mode( true )'>edit</button></span>
+                <span v-if='is_name_edit_mode_enabled'><input type='text' v-bind:placeholder='user.name' v-model='new_resident_name' required/></span>
+                <span v-if='is_name_edit_mode_enabled'><button type='button' @click='update_resident_name_by_id( user.id, new_resident_name ); set_name_edit_mode( false )'>Да</button></span>
+                <span v-if='is_name_edit_mode_enabled'><button type='button' @click='set_name_edit_mode( false )'>Нет</button></span>
               </li>
               <li>
                 <span class='field--bolded field--capitalized'>пол</span>: 
@@ -57,6 +61,7 @@
               <th>дата выпуска</th>
               <th>дата окончания</th>
               <th>масть королевства</th>
+              <th>+/x</th>
             </tr>
           </thead>
 
@@ -66,8 +71,25 @@
               <td>{{ registration.issueDate }}</td>
               <td>{{ registration.expiryDate == null? 'бессрочно' : registration.expiryDate }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == registration.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+              <td><button type='button'>x</button></td>
             </tr>
           </tbody>
+
+          <tfoot>
+            <tr>
+              <td>#</td>
+              <td>{{ new Date( ).toISOString( ).slice( 0, 10 ) }}</td>
+              <td>
+                <input type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' />
+              </td>
+              <td>
+                <select>
+                  <option v-for='kingdom in possible_kingdoms' value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                </select>
+              </td>
+              <td><button type='button'>+</button></td>
+            </tr>
+          </tfoot>
         </table>
     </div>
     </section>
@@ -165,7 +187,12 @@
       queryKingdoms: {
         type: String,
         default: '/api/get-kingdoms'
-      }
+      },
+
+      queryUpdateResidentName: {
+        type: String,
+        default: '/api/update-resident-name-by-id'
+      },
     },
 
     data() {
@@ -173,7 +200,9 @@
         registrations: [],
         tools: [],
         weapons: [],
-        kingdoms: []
+        kingdoms: [],
+        is_name_edit_mode_enabled: false,
+        new_resident_name: "",
       };
     },
 
@@ -228,12 +257,37 @@
       logout: function() {
           this.$emit( 'confirmed', { confirm: true, user: null } );
       },
+
+      set_name_edit_mode: function( value ) {
+        this.is_name_edit_mode_enabled = value;
+      },
+
+      update_resident_name_by_id: async function( resident_id, new_resident_name ) {
+        console.log( `trying to update resident name` );
+        let resident_response = await fetch( `http://localhost:2154/alice${this.queryUpdateResidentName}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify( { id: resident_id, name: new_resident_name } ) } );
+        console.log( resident_response );
+        if ( resident_response.status == 200 ) {
+          let renamed_resident = await resident_response.json();
+          console.log( renamed_resident );
+          console.log( typeof renamed_resident );
+          this.$emit( 'updateresident', renamed_resident );
+        } else console.log( 'unable to update name' );
+      }
     },
 
     computed: {
       is_soldier: function() { return this.user.fkRoleName == 'солдат' },
       is_gardener: function() { return this.user.fkRoleName == 'садовник' },
       is_leader: function() { return this.user.fkRoleName == 'правитель' },
+
+      possible_kingdoms: function() {
+        let unexpired = this.registrations.filter( ( r ) => ( r.expiryDate == null ) ).map( ( r ) => ( r.fkKingdomId ) );
+        console.log( 'filtered registrations' );
+        console.log( unexpired );
+        if ( unexpired.length == 0 )
+          return this.kingdoms;
+        else return this.kingdoms.filter( ( k ) => ( !unexpired.includes( k.id ) ) );
+      },
     },
 
     async mounted() {

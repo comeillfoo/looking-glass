@@ -1,6 +1,6 @@
 <template>
   <Login @confirmed='confirmed' :base='base' v-if='is_not_logged' />
-  <PersonalAccount @confirmed='confirmed' :base='base' :user='user' v-else />
+  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :user='user' v-else />
 </template>
 
 <script lang="ts">
@@ -33,6 +33,10 @@
       confirmed( params ) {
         this.is_not_logged = params[ 'confirm' ];
         this.user = params[ 'user' ];
+      },
+
+      updateresident( new_resident ) {
+        this.user = new_resident;
       },
 
     },
