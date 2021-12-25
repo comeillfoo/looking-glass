@@ -1,5 +1,5 @@
 <template>
-    <nav class='navigate navigate--underlined'>
+    <nav class='navigate navigate--underlined nav-grounded'>
       <ul class='box filler'>
         <li class='panel'><a class='goto' href='#to-personal'>личная информация</a></li>
         <li class='panel'><a class='goto' href='#to-registration'>прописки</a></li>
@@ -9,7 +9,7 @@
         <li class='panel' v-show='is_leader'><a class='goto' href='#to-editor'>редактор</a></li>
         <li class='panel'><a class='goto' @click='logout'>выход</a></li>
       </ul>
-      <div class='box filler'>
+      <div class='box filler box-filler-coloured'>
         <h3 class='header--shrinked'>Добро пожаловать, {{ user.name }}!</h3>
       </div>
     </nav>
@@ -17,7 +17,12 @@
       <h1 class='header header--underlined header--shrinked'>личная информация</h1>
       <div class='container container--left-shifted'>
           <div class='box box--left-aligned box--filler-12'>
-            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/queen.jpg' />
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/rabbit.jpg' v-if="( user.fkSexName == 'кролик' ) || ( user.fkSexName == 'заяц' )" />
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/queen.jpg' v-else-if="( user.fkRoleName == 'правитель' ) && ( user.fkSexName == 'женщина' )" />
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/king.jpg' v-else-if="user.fkRoleName == 'правитель'" />
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/soldier.jpg' v-else-if="user.fkRoleName == 'солдат'" />
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/gardener.jpg' v-else-if="user.fkRoleName == 'садовник'" />
+            <img class='img--inherited img--vertical-centre-aligned' alt='logo' src='@/assets/images/avatars/resident.jpg' v-else />
           </div>
           <div class='box box--left-aligned box--filler-88 box--sticked-right'>
             <h2 class='header--underlined'><span class='field--bolded field--capitalized'>идентификационный номер</span>: <span>{{ user.id }}</span></h2>
@@ -42,10 +47,10 @@
                 <span class='colorized' v-if="user.fkSuitName == 'трефы'">&#9827;</span>
                 <span class='colorized' v-if="user.fkSuitName == 'пики'" >&#9824;</span>
                 <span class='colorized' v-if="user.fkSuitName == 'бубны'">&#9830;</span> -->
-                <span>{{ user.fkSuitName }}</span>
+                <span>{{ user.fkSuitName == null? 'отсутствует' : user.fkSuitName }}</span>
               </li>
               <li>
-                <span class='field--bolded field--capitalized'>роль</span>: <span>{{ user.fkRoleName }}</span>
+                <span class='field--bolded field--capitalized'>роль</span>: <span>{{ user.fkRoleName == null? 'житель' : user.fkRoleName }}</span>
               </li>
             </ul>
           </div>
@@ -71,7 +76,7 @@
               <td>{{ registration.issueDate }}</td>
               <td>{{ registration.expiryDate == null? 'бессрочно' : registration.expiryDate }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == registration.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
-              <td><button type='button'>x</button></td>
+              <td><button type='button' class='btn-action btn-cross'>x</button></td>
             </tr>
           </tbody>
 
@@ -80,14 +85,14 @@
               <td>#</td>
               <td>{{ new Date( ).toISOString( ).slice( 0, 10 ) }}</td>
               <td>
-                <input type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' />
+                <input type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' required />
               </td>
               <td>
                 <select>
                   <option v-for='kingdom in possible_kingdoms' value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button'>+</button></td>
+              <td><button type='button' class='btn-action btn-add'>+</button></td>
             </tr>
           </tfoot>
         </table>
@@ -103,6 +108,7 @@
               <th>№</th>
               <th>название</th>
               <th>масть королевства</th>
+              <th>+/x</th>
             </tr>
           </thead>
 
@@ -111,8 +117,24 @@
               <td>{{ idx + 1 }}</td>
               <td>{{ tool.name }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == tool.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+              <td><button type='button' class='btn-action btn-cross'>x</button></td>
             </tr>
           </tbody>
+
+          <tfoot>
+            <tr>
+              <td>#</td>
+              <td>
+                <input type='text' v-model='new_tool.name' />
+              </td>
+              <td>
+                <select v-model='new_tool.suit'>
+                  <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                </select>
+              </td>
+              <td><button type='button' class='btn-action btn-add'>+</button></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </section>
@@ -126,6 +148,7 @@
               <th>№</th>
               <th>название</th>
               <th>масть королевства</th>
+              <th>+/x</th>
             </tr>
           </thead>
 
@@ -134,8 +157,24 @@
               <td>{{ idx + 1 }}</td>
               <td>{{ weapon.name }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == weapon.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+              <td><button type='button' class='btn-action btn-cross'>x</button></td>
             </tr>
           </tbody>
+
+          <tfoot>
+            <tr>
+              <td>#</td>
+              <td>
+                <input type='text' v-model='new_weapon.name' />
+              </td>
+              <td>
+                <select v-model='new_tool.suit'>
+                  <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                </select>
+              </td>
+              <td><button type='button' class='btn-action btn-add'>+</button></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </section>
@@ -147,8 +186,53 @@
     </section>
 
     <section id='to-editor' class='section--shrinked' v-if='is_leader'>
-      <h2 class='header header--underlined'>редактор</h2>
+      <h2 class='header header--underlined'>редактор жителей</h2>
       <div class='container--left-shifted'>
+        <table class='table--centred table--expanded'>
+          <thead class='row--underlined'>
+            <th>id</th>
+            <th>имя</th>
+            <th>пол</th>
+            <th>масть</th>
+            <th>роль</th>
+            <th>+/x</th>
+          </thead>
+
+          <tbody class='row--underlined'>
+            <tr v-for='resident in residents' :key='resident.id'>
+              <td>{{ resident.id }}</td>
+              <td>{{ resident.name }}</td>
+              <td>{{ resident.fkSexName }}</td>
+              <td>{{ resident.fkSuitName == null? 'отсутствует' : resident.fkSuitName }}</td>
+              <td>{{ resident.fkRoleName == null? 'житель' : resident.fkRoleName }}</td>
+              <td><button type='button' class='btn-action btn-cross'>x</button></td>
+            </tr>
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <td>#</td>
+              <td><input type='text' /></td>
+              <td>
+                <select>
+                  <option v-for='sex in sexes' v-bind:value='sex.name' :key='sex.name'>{{ sex.name }}</option>
+                </select>
+              </td>
+              <td>
+                <select>
+                  <option value='null'>null</option>
+                  <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                </select>
+              </td>
+              <td>
+                <select>
+                  <option>житель</option>
+                </select>
+              </td>
+              <td><button type='button' class='btn-action btn-add'>+</button></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </section>
 </template>
@@ -193,6 +277,16 @@
         type: String,
         default: '/api/update-resident-name-by-id'
       },
+
+      queryGetAllSexes: {
+        type: String,
+        default: '/api/get-all-sexes'
+      },
+
+      queryGetResidents: {
+        type: String,
+        default: '/api/get-residents'
+      },
     },
 
     data() {
@@ -203,6 +297,10 @@
         kingdoms: [],
         is_name_edit_mode_enabled: false,
         new_resident_name: "",
+        new_tool: { name: "", suit: 1 },
+        new_weapon: { name: "", suit: 1 },
+        sexes: [],
+        residents: []
       };
     },
 
@@ -272,7 +370,31 @@
           console.log( typeof renamed_resident );
           this.$emit( 'updateresident', renamed_resident );
         } else console.log( 'unable to update name' );
-      }
+      },
+
+      receive_sexes: async function( ) {
+        console.log( `trying to receive sexes` );
+        let sexes_response = await fetch( `http://localhost:2154/alice${this.queryGetAllSexes}`, { method: 'GET' } );
+        console.log( sexes_response );
+        if ( sexes_response.status == 200 ) {
+          let sexes = await sexes_response.json();
+          console.log( sexes );
+          console.log( typeof sexes );
+          this.sexes = sexes;
+        }
+      },
+
+      receive_residents: async function( ) {
+        console.log( `trying to receive residents` );
+        let residents_response = await fetch( `http://localhost:2154/alice${this.queryGetResidents}`, { method: 'GET' } );
+        console.log( residents_response );
+        if ( residents_response.status == 200 ) {
+          let residents = await residents_response.json();
+          console.log( residents );
+          console.log( typeof residents );
+          this.residents = residents.filter( ( r ) => ( r.fkSuitName == this.user.fkSuitName ) );
+        }
+      },
     },
 
     computed: {
@@ -293,6 +415,10 @@
     async mounted() {
       await this.receive_kingdoms();
       await this.receive_registrations( this.user.id );
+      if ( this.is_leader ) {
+        await this.receive_sexes();
+        await this.receive_residents();
+      }
       if ( this.is_gardener )
         await this.receive_tools( this.user.id );
       if ( this.is_soldier )
@@ -347,6 +473,10 @@
     padding: 0.675rem 1.28rem;
   }
 
+  .box-filler-coloured {
+    background-color: rgba( 242, 207,  98, .75 );
+  }
+
   .navigate {
     margin: 0;
     padding: 0;
@@ -359,6 +489,11 @@
     border-bottom: 1px solid #58595B;
   }
 
+  .nav-grounded {
+    background: url( '~@/assets/images/bg.png' );
+    background-size: 300px;
+  }
+
   .filler {
     margin: 0;
     padding: 0;
@@ -368,12 +503,14 @@
   .goto {
     display: block;
     text-decoration: none;
+    font-weight: 800;
     padding: 0.8rem 1.28rem;
+    background-color: rgba( 242, 207,  98, .75 );
     color: #6593A6;
   }
 
   .goto:hover {
-    background-color: #F2F2F2;
+    background-color: rgba( 242, 242, 242, .75 );
   }
 
   .section--shrinked {
@@ -422,5 +559,20 @@
 
   .row--underlined {
     border-bottom: 1px solid #58595B;
+  }
+
+  .btn-action {
+    color: #F2F2F2;
+    border-radius: 50%;
+  }
+
+  .btn-cross {
+    border: 1px solid rgba(242, 191, 98, 1);
+    background-color: rgba(242, 191, 98, 1); 
+  }
+
+  .btn-add {
+    border: 1px solid rgba(100, 147, 165, 1);
+    background-color: rgba(100, 147, 165, 1);
   }
 </style>
