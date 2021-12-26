@@ -29,10 +29,10 @@
             <ul>
               <li>
                 <span class='field--bolded field--capitalized'>имя</span>: <span v-if='!is_name_edit_mode_enabled'>{{ user.name }}</span>
-                <span v-if='!is_name_edit_mode_enabled'><button type='button' @click='set_name_edit_mode( true )'>edit</button></span>
+                <span v-if='!is_name_edit_mode_enabled'><button type='button' class='btn-action btn-add' @click='set_name_edit_mode( true )'>&#9998;</button></span>
                 <span v-if='is_name_edit_mode_enabled'><input type='text' v-bind:placeholder='user.name' v-model='new_resident_name' required/></span>
-                <span v-if='is_name_edit_mode_enabled'><button type='button' @click='update_resident_name_by_id( user.id, new_resident_name ); set_name_edit_mode( false )'>Да</button></span>
-                <span v-if='is_name_edit_mode_enabled'><button type='button' @click='set_name_edit_mode( false )'>Нет</button></span>
+                <span v-if='is_name_edit_mode_enabled' ><button type='button' class='btn-action btn-add' @click='update_resident_name_by_id( user.id, new_resident_name ); set_name_edit_mode( false )'>&#x2713;</button></span>
+                <span v-if='is_name_edit_mode_enabled'><button type='button' class='btn-action btn-cross' @click='set_name_edit_mode( false )'>&#x2717;</button></span>
               </li>
               <li>
                 <span class='field--bolded field--capitalized'>пол</span>: 
@@ -117,7 +117,7 @@
               <td>{{ idx + 1 }}</td>
               <td>{{ tool.name }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == tool.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
-              <td><button type='button' class='btn-action btn-cross'>x</button></td>
+              <td><button type='button' class='btn-action btn-cross' @click='delete_resident_tool_by_id( tool.id )'>x</button></td>
             </tr>
           </tbody>
 
@@ -157,7 +157,7 @@
               <td>{{ idx + 1 }}</td>
               <td>{{ weapon.name }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == weapon.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
-              <td><button type='button' class='btn-action btn-cross'>x</button></td>
+              <td><button type='button' class='btn-action btn-cross' @click='delete_resident_weapon_by_id( weapon.id )'>x</button></td>
             </tr>
           </tbody>
 
@@ -205,7 +205,7 @@
               <td>{{ resident.fkSexName }}</td>
               <td>{{ resident.fkSuitName == null? 'отсутствует' : resident.fkSuitName }}</td>
               <td>{{ resident.fkRoleName == null? 'житель' : resident.fkRoleName }}</td>
-              <td><button type='button' class='btn-action btn-cross'>x</button></td>
+              <td><button type='button' class='btn-action btn-cross'  @click='delete_resident_by_id( resident.id )'>x</button></td>
             </tr>
           </tbody>
 
@@ -287,6 +287,21 @@
         type: String,
         default: '/api/get-residents'
       },
+
+      queryDeleteResident: {
+        type: String,
+        default: '/api/delete-resident-by-id'
+      },
+
+      queryDeleteResidentTool: {
+        type: String,
+        default: '/api/delete-resident-tool-by-id'
+      },
+
+      queryDeleteResidentWeapon: {
+        type: String,
+        default: '/api/delete-resident-weapon-by-id'
+      }
     },
 
     data() {
@@ -392,7 +407,37 @@
           let residents = await residents_response.json();
           console.log( residents );
           console.log( typeof residents );
-          this.residents = residents.filter( ( r ) => ( r.fkSuitName == this.user.fkSuitName ) );
+          this.residents = residents.filter( ( r ) => ( r.fkSuitName == this.user.fkSuitName || r.fkSuitName == null ) );
+        }
+      },
+
+      delete_resident_by_id: async function( resident_id: number ) {
+        console.log( `trying to delete resident` );
+        let resident_response = await fetch( `http://localhost:2154/alice${this.queryDeleteResident}/${resident_id}`, { method: 'DELETE' } );
+        console.log( resident_response );
+        if ( resident_response.status == 200 ) {
+          console.log( 'successfully deleted resident' );
+          await this.receive_residents();
+        }
+      },
+
+      delete_resident_tool_by_id: async function( resident_tool_id: number ) {
+        console.log( `trying to delete resident's tool` );
+        let resident_tool_response = await fetch( `http://localhost:2154/alice${this.queryDeleteResidentTool}/${resident_tool_id}`, { method: 'DELETE' } );
+        console.log( resident_tool_response );
+        if ( resident_tool_response.status == 200 ) {
+          console.log( 'successfully deleted residents tool' );
+          await this.receive_tools( this.user.id );
+        }
+      },
+
+      delete_resident_weapon_by_id: async function( resident_weapon_id: number ) {
+        console.log( `trying to delete resident's weapon` );
+        let resident_weapon_response = await fetch( `http://localhost:2154/alice${this.queryDeleteResidentWeapon}/${resident_weapon_id}`, { method: 'DELETE' } );
+        console.log( resident_weapon_response );
+        if ( resident_weapon_response.status == 200 ) {
+          console.log( 'successfully deleted residents weapon' );
+          await this.receive_weapons( this.user.id );
         }
       },
     },
