@@ -76,7 +76,7 @@
               <td>{{ registration.issueDate }}</td>
               <td>{{ registration.expiryDate == null? 'бессрочно' : registration.expiryDate }}</td>
               <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == registration.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
-              <td><button type='button' class='btn-action btn-cross'>x</button></td>
+              <td><button type='button' class='btn-action btn-cross' @click='delete_resident_registration_by_id( registration.id )'>x</button></td>
             </tr>
           </tbody>
 
@@ -85,16 +85,17 @@
               <td>#</td>
               <td>{{ new Date( ).toISOString( ).slice( 0, 10 ) }}</td>
               <td>
-                <input type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' required />
+                <input type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' v-model='spanDays' required />
               </td>
               <td>
-                <select>
-                  <option v-for='kingdom in possible_kingdoms' value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                <select v-model='to_visit.destKingdom'>
+                  <option v-for='kingdom in possible_kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' @click='visit_to_kingdom'>+</button></td>
             </tr>
           </tfoot>
+
         </table>
     </div>
     </section>
@@ -301,6 +302,16 @@
       queryDeleteResidentWeapon: {
         type: String,
         default: '/api/delete-resident-weapon-by-id'
+      },
+
+      queryDeleteResidentRegistration: {
+        type: String,
+        default: '/api/delete-resident-registration-by-id'
+      },
+
+      queryVisitKingdom: {
+        type: String,
+        default: '/api/visit-to-kingdom'
       }
     },
 
@@ -315,7 +326,12 @@
         new_tool: { name: "", suit: 1 },
         new_weapon: { name: "", suit: 1 },
         sexes: [],
-        residents: []
+        residents: [],
+        to_visit: {
+          residentId: this.user.id,
+          spanDays: 0,
+          destKingdom: null
+        }
       };
     },
 
@@ -387,6 +403,21 @@
         } else console.log( 'unable to update name' );
       },
 
+      visit_to_kingdom: async function( ) {
+        console.log( 'trying to add a visit registration to another kingdom' );
+        let visit_response = await fetch( `http://localhost:2154/alice${this.queryVisitKingdom}`,
+          { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { residentId: this.to_visit.residentId, spanDays: this.to_visit.spanDays, destKingdom: this.to_visit.destKingdom } )
+          } );
+        console.log( visit_response );
+        if ( visit_response.status == 200 ) {
+          await this.receive_registrations( this.user.id );
+          console.log( 'able to visit another kingdom' );
+        } else console.log( 'unable to visit another kingdom' );
+      },
+
       receive_sexes: async function( ) {
         console.log( `trying to receive sexes` );
         let sexes_response = await fetch( `http://localhost:2154/alice${this.queryGetAllSexes}`, { method: 'GET' } );
@@ -440,6 +471,16 @@
           await this.receive_weapons( this.user.id );
         }
       },
+
+      delete_resident_registration_by_id: async function( resident_registration_id: number ) {
+        console.log( `trying to delete resident's registration` );
+        let resident_registration_response = await fetch( `http://localhost:2154/alice${this.queryDeleteResidentRegistration}/${resident_registration_id}`, { method: 'DELETE' } );
+        console.log( resident_registration_response );
+        if ( resident_registration_response.status == 200 ) {
+          console.log( 'successfully deleted residents registration' );
+          await this.receive_registrations( this.user.id );
+        }
+      }
     },
 
     computed: {
@@ -454,6 +495,22 @@
         if ( unexpired.length == 0 )
           return this.kingdoms;
         else return this.kingdoms.filter( ( k ) => ( !unexpired.includes( k.id ) ) );
+      },
+
+      spanDays: {
+        get() {
+          let date = new Date();
+          date.setDate( date.getDate() + this.to_visit.spanDays );
+          return date.toISOString().slice( 0, 10 );
+        },
+
+        set( date ) {
+          let today = new Date();
+          console.log( `today is ${today}` );
+          let diffTime = new Date( date ).getTime() - today.getTime();
+          console.log( `different: ${diffTime}` );
+          this.to_visit.spanDays = Math.trunc( diffTime / ( 21 * 3600 * 1000 ) );
+        },
       },
     },
 
