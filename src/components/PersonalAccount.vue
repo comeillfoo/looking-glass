@@ -92,7 +92,7 @@
                   <option v-for='kingdom in possible_kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add' @click='visit_to_kingdom'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_visit_disabled }" @click='visit_to_kingdom' :disabled='is_visit_disabled'>+</button></td>
             </tr>
           </tfoot>
 
@@ -133,7 +133,7 @@
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_tool_disabled }" :disabled='is_tool_disabled'>+</button></td>
             </tr>
           </tfoot>
         </table>
@@ -169,11 +169,11 @@
                 <input type='text' v-model='new_weapon.name' />
               </td>
               <td>
-                <select v-model='new_tool.suit'>
+                <select v-model='new_weapon.suit'>
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_weapon_disabled }" :disabled='is_weapon_disabled'>+</button></td>
             </tr>
           </tfoot>
         </table>
@@ -323,8 +323,8 @@
         kingdoms: [],
         is_name_edit_mode_enabled: false,
         new_resident_name: "",
-        new_tool: { name: "", suit: 1 },
-        new_weapon: { name: "", suit: 1 },
+        new_tool: { name: "", suit: null },
+        new_weapon: { name: "", suit: null },
         sexes: [],
         residents: [],
         to_visit: {
@@ -487,6 +487,9 @@
       is_soldier: function() { return this.user.fkRoleName == 'солдат' },
       is_gardener: function() { return this.user.fkRoleName == 'садовник' },
       is_leader: function() { return this.user.fkRoleName == 'правитель' },
+      is_visit_disabled: function () { return this.to_visit.destKingdom == null; },
+      is_tool_disabled: function () { return this.new_tool.suit == null || this.new_tool.name == ""; },
+      is_weapon_disabled: function () { return this.new_weapon.suit == null || this.new_weapon.name == ""; },
 
       possible_kingdoms: function() {
         let unexpired = this.registrations.filter( ( r ) => ( r.expiryDate == null ) ).map( ( r ) => ( r.fkKingdomId ) );
@@ -666,6 +669,7 @@
   .btn-action {
     color: #F2F2F2;
     border-radius: 50%;
+    padding: .3em .6128em;
   }
 
   .btn-cross {
@@ -676,5 +680,10 @@
   .btn-add {
     border: 1px solid rgba(100, 147, 165, 1);
     background-color: rgba(100, 147, 165, 1);
+  }
+
+  .btn-add-disabled {
+    border: 1px solid rgba(100, 147, 165, .5);
+    background-color: rgba(100, 147, 165, .5);
   }
 </style>
