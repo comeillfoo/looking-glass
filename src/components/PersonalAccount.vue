@@ -133,7 +133,7 @@
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_tool_disabled }" :disabled='is_tool_disabled'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_tool_disabled }" @click='add_new_tool' :disabled='is_tool_disabled'>+</button></td>
             </tr>
           </tfoot>
         </table>
@@ -173,7 +173,7 @@
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_weapon_disabled }" :disabled='is_weapon_disabled'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_weapon_disabled }" @click='add_new_weapon' :disabled='is_weapon_disabled'>+</button></td>
             </tr>
           </tfoot>
         </table>
@@ -312,7 +312,17 @@
       queryVisitKingdom: {
         type: String,
         default: '/api/visit-to-kingdom'
-      }
+      },
+
+      queryAddNewTool: {
+        type: String,
+        default: '/api/add-new-tool'
+      },
+
+      queryAddNewWeapon: {
+        type: String,
+        default: '/api/add-new-weapon'
+      },
     },
 
     data() {
@@ -323,8 +333,8 @@
         kingdoms: [],
         is_name_edit_mode_enabled: false,
         new_resident_name: "",
-        new_tool: { name: "", suit: null },
-        new_weapon: { name: "", suit: null },
+        new_tool: { residentId: this.user.id, name: "", suit: null },
+        new_weapon: { residentId: this.user.id, name: "", suit: null },
         sexes: [],
         residents: [],
         to_visit: {
@@ -416,6 +426,42 @@
           await this.receive_registrations( this.user.id );
           console.log( 'able to visit another kingdom' );
         } else console.log( 'unable to visit another kingdom' );
+      },
+
+      add_new_tool: async function( ) {
+        console.log( 'trying to add a new tool' );
+        let tool_response = await fetch( `http://localhost:2154/alice${this.queryAddNewTool}`,
+          { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { residentId: this.new_tool.residentId, name: this.new_tool.name, suit: this.new_tool.suit } )
+          } );
+        console.log( tool_response );
+        if ( tool_response.status == 200 ) {
+          let tool = await tool_response.json();
+          console.log( tool );
+          console.log( typeof tool );
+          await this.receive_tools( this.user.id );
+          console.log( 'new tool successfully added' );
+        } else console.log( 'unable to add new tool' );
+      },
+
+      add_new_weapon: async function( ) {
+        console.log( 'trying to add a new weapon' );
+        let weapon_response = await fetch( `http://localhost:2154/alice${this.queryAddNewWeapon}`,
+          { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { residentId: this.new_weapon.residentId, name: this.new_weapon.name, suit: this.new_weapon.suit } )
+          } );
+        console.log( weapon_response );
+        if ( weapon_response.status == 200 ) {
+          let weapon = await weapon_response.json();
+          console.log( weapon );
+          console.log( typeof weapon );
+          await this.receive_weapons( this.user.id );
+          console.log( 'new weapon successfully added' );
+        } else console.log( 'unable to add new weapon' );
       },
 
       receive_sexes: async function( ) {
