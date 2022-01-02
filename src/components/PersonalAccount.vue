@@ -213,24 +213,24 @@
           <tfoot>
             <tr>
               <td>#</td>
-              <td><input type='text' /></td>
+              <td><input type='text' v-model='new_resident.name' placeholder='Вася Пупкин' /></td>
               <td>
-                <select>
+                <select v-model='new_resident.fkSexName'>
                   <option v-for='sex in sexes' v-bind:value='sex.name' :key='sex.name'>{{ sex.name }}</option>
                 </select>
               </td>
               <td>
-                <select>
-                  <option value='null'>null</option>
-                  <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                <select v-model='new_resident.fkSuitName'>
+                  <option value=''>отсутствует</option>
+                  <option v-for='kingdom in kingdoms' v-bind:value='kingdom.fkSuitName' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
               <td>
-                <select>
-                  <option>житель</option>
+                <select v-model='new_resident.fkRoleName'>
+                  <option v-for='( role, idx ) in roles' v-bind:value='role.name' :key='idx'>{{ role.name }}</option>
                 </select>
               </td>
-              <td><button type='button' class='btn-action btn-add'>+</button></td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_resident_disabled }" :disabled='is_resident_disabled' @click='add_new_resident'>+</button></td>
             </tr>
           </tfoot>
         </table>
@@ -284,6 +284,11 @@
         default: '/api/get-all-sexes'
       },
 
+      queryGetAllRoles: {
+        type: String,
+        default: '/api/get-all-roles'
+      },
+
       queryGetResidents: {
         type: String,
         default: '/api/get-residents'
@@ -323,6 +328,11 @@
         type: String,
         default: '/api/add-new-weapon'
       },
+
+      queryAddNewResident: {
+        type: String,
+        default: '/api/add-new-resident'
+      },
     },
 
     data() {
@@ -341,7 +351,14 @@
           residentId: this.user.id,
           spanDays: 0,
           destKingdom: null
-        }
+        },
+        roles: [],
+        new_resident: {
+          name: "",
+          fkSexName: null,
+          fkSuitName: "",
+          fkRoleName: null,
+        },
       };
     },
 
@@ -464,6 +481,28 @@
         } else console.log( 'unable to add new weapon' );
       },
 
+      add_new_resident: async function( ) {
+        console.log( 'trying to add a new resident' );
+        let resident_response = await fetch( `http://localhost:2154/alice${this.queryAddNewResident}`,
+          { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( 
+              { name: this.new_resident.name,
+                fkSexName: this.new_resident.fkSexName,
+                fkSuitName: this.new_resident.fkSuitName == ''? null : this.new_resident.fkSuitName,
+                fkRoleName: this.new_resident.fkRoleName } )
+          } );
+        console.log( resident_response );
+        if ( resident_response.status == 200 ) {
+          let resident = await resident_response.json();
+          console.log( resident );
+          console.log( typeof resident );
+          await this.receive_residents( );
+          console.log( 'new resident successfully added' );
+        } else console.log( 'unable to add new resident' );
+      },
+
       receive_sexes: async function( ) {
         console.log( `trying to receive sexes` );
         let sexes_response = await fetch( `http://localhost:2154/alice${this.queryGetAllSexes}`, { method: 'GET' } );
@@ -473,6 +512,18 @@
           console.log( sexes );
           console.log( typeof sexes );
           this.sexes = sexes;
+        }
+      },
+
+      receive_roles: async function( ) {
+        console.log( `trying to receive roles` );
+        let roles_response = await fetch( `http://localhost:2154/alice${this.queryGetAllRoles}`, { method: 'GET' } );
+        console.log( roles_response );
+        if ( roles_response.status == 200 ) {
+          let roles = await roles_response.json();
+          console.log( roles );
+          console.log( typeof roles );
+          this.roles = roles;
         }
       },
 
@@ -534,8 +585,9 @@
       is_gardener: function() { return this.user.fkRoleName == 'садовник' },
       is_leader: function() { return this.user.fkRoleName == 'правитель' },
       is_visit_disabled: function () { return this.to_visit.destKingdom == null; },
-      is_tool_disabled: function () { return this.new_tool.suit == null || this.new_tool.name == ""; },
-      is_weapon_disabled: function () { return this.new_weapon.suit == null || this.new_weapon.name == ""; },
+      is_tool_disabled: function () { return this.new_tool.suit == null || this.new_tool.name.replaceAll( ' ', '' ) == ''; },
+      is_weapon_disabled: function () { return this.new_weapon.suit == null || this.new_weapon.name.replaceAll( ' ', '' ) == ''; },
+      is_resident_disabled: function () { return this.new_resident.name.replaceAll( ' ', '' ) == '' || this.new_resident.fkRoleName == null || this.new_resident.fkSexName == null; },
 
       possible_kingdoms: function() {
         let unexpired = this.registrations.filter( ( r ) => ( r.expiryDate == null ) ).map( ( r ) => ( r.fkKingdomId ) );
@@ -568,7 +620,10 @@
       await this.receive_registrations( this.user.id );
       if ( this.is_leader ) {
         await this.receive_sexes();
+        await this.receive_roles();
         await this.receive_residents();
+        this.new_resident.fkSexName = this.sexes[ 0 ].name;
+        this.new_resident.fkRoleName = this.roles[ 0 ].name;
       }
       if ( this.is_gardener )
         await this.receive_tools( this.user.id );
