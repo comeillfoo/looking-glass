@@ -1,4 +1,5 @@
 <template>
+  <Register :base='base' />
   <Login @confirmed='confirmed' :base='base' v-if='is_not_logged' />
   <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :user='user' v-else />
 </template>
@@ -6,12 +7,13 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import Login from '@/components/Login.vue';
+  import Register from '@/components/Register.vue';
   import PersonalAccount from '@/components/PersonalAccount.vue';
 
   export default defineComponent({
     name: 'App',
     components: {
-      Login, PersonalAccount
+      Login, Register, PersonalAccount
     },
 
     props: {
@@ -74,6 +76,8 @@
 
   body {
     margin: 0;
+    background-image: linear-gradient( rgba(87, 89, 91, 0.4 ), rgba(87, 89, 91, 0.4 ) ), url( '~@/assets/images/bg.png' );
+    background-size: 1200px;
   }
 
   #app {
@@ -88,6 +92,14 @@
     display: inline-block;
     padding: .8rem;
     vertical-align: top;
+  }
+
+  .white-box {
+    background-color: rgba( 242, 242, 242, 1 );
+  }
+
+  .box--padded-top {
+    margin-top: 16em;
   }
 
   .box--bordered {

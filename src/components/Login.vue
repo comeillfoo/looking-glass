@@ -1,5 +1,5 @@
 <template>
-  <div class='box box--bordered box-rounded'>
+  <div class='box box--bordered box-rounded white-box box--padded-top'>
     <h3>Вход</h3>
     <form @submit.prevent='login'>
       <fieldset>
