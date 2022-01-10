@@ -184,7 +184,7 @@
     <section id='to-statistics' class='section--shrinked'>
       <h2 class='header header--underlined'>статистика</h2>
       <div class='container--left-shifted'>
-<!--         <DoughnutChart v-bind="doughnutChartProps" /> -->
+        <DoughnutChart v-bind="doughnutChartProps" />
       </div>
     </section>
 
@@ -243,68 +243,81 @@
 
 <script lang='ts'>
   import { defineComponent } from 'vue';
-  // import { computed, ref, toRef } from "vue";
-  // import { DoughnutChart, useDoughnutChart } from "vue-chart-3";
-  // import { Chart, ChartData, ChartOptions, registerables } from "chart.js";
+  import { computed, ref, toRef } from 'vue';
+  import { DoughnutChart, useDoughnutChart } from "vue-chart-3";
+  import { Chart, ChartData, ChartOptions, registerables } from "chart.js";
 
-  // Chart.register(...registerables);
+  Chart.register(...registerables);
 
   export default defineComponent({
     name: 'PersonalAccount',
 
-    // components: {
-    //   DoughnutChart
-    // },
+    components: {
+      DoughnutChart
+    },
 
-    // setup( props ) {
-    //   const dataValues = ref([30, 40, 60, 70, 5]);
-    //   const toggleLegend = ref(true);
-    //   const testData = computed<ChartData<"doughnut">>(() => ({
-    //     labels: ["Paris", "Nîmes", "Toulon", "Perpignan", "Autre"],
-    //     datasets: [
-    //       {
-    //         data: dataValues.value,
-    //         backgroundColor: [
-    //           "#77CEFF",
-    //           "#0079AF",
-    //           "#123E6B",
-    //           "#97B0C4",
-    //           "#A5C8ED",
-    //         ],
-    //       },
-    //     ],
-    //   }));
+    setup( props ) {
+      console.log( 'setup on' );
+      const kingdoms = toRef( props, 'kingdoms' );
+      const kingdomsValues = kingdoms.value.map( ( kingdom ) => ( kingdom.numberOfResidents ) );
+      const kingdomsLabels = kingdoms.value.map( ( kingdom ) => ( kingdom.fkSuitName ) );
+      console.log( kingdomsLabels );
+      console.log( kingdomsValues );
+      // const females = toRef( props, 'females' );
+      // const femalesValues = females.value.map( ( female ) => ( female.females ) );
+      // console.log( femalesValues );
+      // const males = toRef( props, 'males' );
+      // const malesValues = males.value.map( ( male ) => ( male.males ) );
+      // console.log( malesValues );
 
-    //   const options = computed<ChartOptions<"doughnut">>(() => ({
-    //     scales: {
-    //       myScale: {
-    //         type: "logarithmic",
-    //         position: toggleLegend.value ? "left" : "right",
-    //       },
-    //     },
-    //     plugins: {
-    //       legend: {
-    //         position: toggleLegend.value ? "top" : "bottom",
-    //       },
-    //       title: {
-    //         display: true,
-    //         text: "Число жителей в королевствах",
-    //       },
-    //     },
-    //   }));
+      const toggleLegend = ref( true );
+      const testData = computed<ChartData<"doughnut">>(() => ({
+        labels: kingdomsLabels,
+        datasets: [
+          {
+            data: kingdomsValues,
+            backgroundColor: [
+              "#77CEFF",
+              "#0079AF",
+              "#123E6B",
+              "#97B0C4",
+            ],
+          },
+        ],
+      }));
 
-    //   const { doughnutChartProps, doughnutChartRef } = useDoughnutChart({
-    //     chartData: testData,
-    //     options,
-    //   });
+      const options = computed<ChartOptions<"doughnut">>(() => ({
+        scales: {
+          myScale: {
+            type: "logarithmic",
+            position: toggleLegend.value ? "left" : "right",
+          },
+        },
+        plugins: {
+          legend: {
+            position: toggleLegend.value ? "top" : "bottom",
+          },
+          title: {
+            display: true,
+            text: "Число жителей в королевствах",
+          },
+        },
+      }));
 
-    //   return {
-    //     testData,
-    //     options,
-    //     doughnutChartRef,
-    //     doughnutChartProps,
-    //   };
-    // },
+      const { doughnutChartProps, doughnutChartRef } = useDoughnutChart({
+        chartData: testData,
+        options,
+      });
+
+      console.log( 'setup off' );
+
+      return {
+        testData,
+        options,
+        doughnutChartRef,
+        doughnutChartProps,
+      };
+    },
 
     props: {
       base: {
@@ -312,15 +325,18 @@
       },
 
       kingdoms: {
-        type: Array
+        type: Object,
+        default: null
       },
 
       females: {
-        type: Array
+        type: Object,
+        default: null
       },
 
       males: {
-        type: Array
+        type: Object,
+        default: null
       },
 
       user: {
