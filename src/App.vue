@@ -26,6 +26,16 @@
         type: String,
         default: '/api/get-kingdoms'
       },
+
+      queryFemales: {
+        type: String,
+        default: '/api/get-females-count'
+      },
+
+      queryMales: {
+        type: String,
+        default: '/api/get-males-count'
+      },
     },
 
     data() {
@@ -34,6 +44,8 @@
         user: null,
         is_login: true,
         kingdoms: [],
+        females: [],
+        males: [],
       };
     },
 
@@ -63,10 +75,36 @@
           this.kingdoms = kingdoms;
         } 
       },
+
+      receive_females: async function( ) {
+        console.log( `trying to receive females` );
+        let females_response = await fetch( `${this.base}${this.queryFemales}`, { method: 'GET' } );
+        console.log( females_response );
+        if ( females_response.status == 200 ) {
+          let females = await females_response.json();
+          console.log( females );
+          console.log( typeof females );
+          this.females = females;
+        } 
+      },
+
+      receive_males: async function( ) {
+        console.log( `trying to receive males` );
+        let males_response = await fetch( `${this.base}${this.queryMales}`, { method: 'GET' } );
+        console.log( males_response );
+        if ( males_response.status == 200 ) {
+          let males = await males_response.json();
+          console.log( males );
+          console.log( typeof males );
+          this.males = males;
+        } 
+      },
     },
 
     async mounted() {
       await this.receive_kingdoms();
+      await this.receive_females();
+      await this.receive_males();
     }
   });
 </script>

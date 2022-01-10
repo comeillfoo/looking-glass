@@ -315,6 +315,14 @@
         type: Array
       },
 
+      females: {
+        type: Array
+      },
+
+      males: {
+        type: Array
+      },
+
       user: {
         type: Object,
         default: null, 
