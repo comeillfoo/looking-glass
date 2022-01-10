@@ -1,4 +1,5 @@
 <template>
+  <div class='wrap'>
     <nav class='navigate navigate--underlined nav-grounded'>
       <ul class='box filler'>
         <li class='panel'><a class='goto' href='#to-personal'>личная информация</a></li>
@@ -183,6 +184,7 @@
     <section id='to-statistics' class='section--shrinked'>
       <h2 class='header header--underlined'>статистика</h2>
       <div class='container--left-shifted'>
+<!--         <DoughnutChart v-bind="doughnutChartProps" /> -->
       </div>
     </section>
 
@@ -236,17 +238,81 @@
         </table>
       </div>
     </section>
+  </div>
 </template>
 
 <script lang='ts'>
   import { defineComponent } from 'vue';
+  // import { computed, ref, toRef } from "vue";
+  // import { DoughnutChart, useDoughnutChart } from "vue-chart-3";
+  // import { Chart, ChartData, ChartOptions, registerables } from "chart.js";
+
+  // Chart.register(...registerables);
 
   export default defineComponent({
     name: 'PersonalAccount',
 
+    // components: {
+    //   DoughnutChart
+    // },
+
+    // setup( props ) {
+    //   const dataValues = ref([30, 40, 60, 70, 5]);
+    //   const toggleLegend = ref(true);
+    //   const testData = computed<ChartData<"doughnut">>(() => ({
+    //     labels: ["Paris", "Nîmes", "Toulon", "Perpignan", "Autre"],
+    //     datasets: [
+    //       {
+    //         data: dataValues.value,
+    //         backgroundColor: [
+    //           "#77CEFF",
+    //           "#0079AF",
+    //           "#123E6B",
+    //           "#97B0C4",
+    //           "#A5C8ED",
+    //         ],
+    //       },
+    //     ],
+    //   }));
+
+    //   const options = computed<ChartOptions<"doughnut">>(() => ({
+    //     scales: {
+    //       myScale: {
+    //         type: "logarithmic",
+    //         position: toggleLegend.value ? "left" : "right",
+    //       },
+    //     },
+    //     plugins: {
+    //       legend: {
+    //         position: toggleLegend.value ? "top" : "bottom",
+    //       },
+    //       title: {
+    //         display: true,
+    //         text: "Число жителей в королевствах",
+    //       },
+    //     },
+    //   }));
+
+    //   const { doughnutChartProps, doughnutChartRef } = useDoughnutChart({
+    //     chartData: testData,
+    //     options,
+    //   });
+
+    //   return {
+    //     testData,
+    //     options,
+    //     doughnutChartRef,
+    //     doughnutChartProps,
+    //   };
+    // },
+
     props: {
       base: {
         type: String,
+      },
+
+      kingdoms: {
+        type: Array
       },
 
       user: {
@@ -269,10 +335,10 @@
         default: '/api/get-weapons-by-resident-id'
       },
 
-      queryKingdoms: {
-        type: String,
-        default: '/api/get-kingdoms'
-      },
+      // queryKingdoms: {
+      //   type: String,
+      //   default: '/api/get-kingdoms'
+      // },
 
       queryUpdateResidentName: {
         type: String,
@@ -340,7 +406,6 @@
         registrations: [],
         tools: [],
         weapons: [],
-        kingdoms: [],
         is_name_edit_mode_enabled: false,
         new_resident_name: "",
         new_tool: { residentId: this.user.id, name: "", suit: null },
@@ -398,17 +463,17 @@
         }
       },
 
-      receive_kingdoms: async function( ) {
-        console.log( `trying to receive kingdoms` );
-        let kingdoms_response = await fetch( `http://localhost:2154/alice${this.queryKingdoms}`, { method: 'GET' } );
-        console.log( kingdoms_response );
-        if ( kingdoms_response.status == 200 ) {
-          let kingdoms = await kingdoms_response.json();
-          console.log( kingdoms );
-          console.log( typeof kingdoms );
-          this.kingdoms = kingdoms;
-        } 
-      },
+      // receive_kingdoms: async function( ) {
+      //   console.log( `trying to receive kingdoms` );
+      //   let kingdoms_response = await fetch( `http://localhost:2154/alice${this.queryKingdoms}`, { method: 'GET' } );
+      //   console.log( kingdoms_response );
+      //   if ( kingdoms_response.status == 200 ) {
+      //     let kingdoms = await kingdoms_response.json();
+      //     console.log( kingdoms );
+      //     console.log( typeof kingdoms );
+      //     this.kingdoms = kingdoms;
+      //   } 
+      // },
 
       logout: function() {
           this.$emit( 'confirmed', { confirm: true, user: null } );
@@ -616,7 +681,7 @@
     },
 
     async mounted() {
-      await this.receive_kingdoms();
+      // await this.receive_kingdoms();
       await this.receive_registrations( this.user.id );
       if ( this.is_leader ) {
         await this.receive_sexes();
@@ -786,5 +851,11 @@
   .btn-add-disabled {
     border: 1px solid rgba(100, 147, 165, .5);
     background-color: rgba(100, 147, 165, .5);
+  }
+
+  .wrap {
+    margin: 0;
+    background-color: rgb(242, 242, 242);
+    width: 100%;
   }
 </style>

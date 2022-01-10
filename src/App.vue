@@ -1,11 +1,7 @@
 <template>
-  <transition name='fade'>
-    <Register @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && !is_login' />
-  </transition>
-  <transition name='fade'>
-    <Login @confirmed='confirmed' @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && is_login' />
-  </transition>
-  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :user='user' v-if='!is_not_logged' />
+  <Register @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && !is_login' />
+  <Login @confirmed='confirmed' @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && is_login' />
+  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :kingdoms='kingdoms' :user='user' v-if='!is_not_logged' />
 </template>
 
 <script lang="ts">
@@ -24,7 +20,12 @@
       base: {
         type: String,
         default: 'http://localhost:2154/alice'
-      }
+      },
+
+      queryKingdoms: {
+        type: String,
+        default: '/api/get-kingdoms'
+      },
     },
 
     data() {
@@ -32,6 +33,7 @@
         is_not_logged: true,
         user: null,
         is_login: true,
+        kingdoms: [],
       };
     },
 
@@ -50,7 +52,22 @@
         this.user = new_resident;
       },
 
+      receive_kingdoms: async function( ) {
+        console.log( `trying to receive kingdoms` );
+        let kingdoms_response = await fetch( `${this.base}${this.queryKingdoms}`, { method: 'GET' } );
+        console.log( kingdoms_response );
+        if ( kingdoms_response.status == 200 ) {
+          let kingdoms = await kingdoms_response.json();
+          console.log( kingdoms );
+          console.log( typeof kingdoms );
+          this.kingdoms = kingdoms;
+        } 
+      },
     },
+
+    async mounted() {
+      await this.receive_kingdoms();
+    }
   });
 </script>
 
@@ -143,14 +160,6 @@
     margin-top: 0;
     padding-top: .8em;
     padding-bottom: .8em;
-  }
-
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .8s;
-  }
-
-  .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
-    opacity: 0;
   }
 
   .form-activate {
