@@ -1,7 +1,11 @@
 <template>
-  <Register :base='base' />
-  <Login @confirmed='confirmed' :base='base' v-if='is_not_logged' />
-  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :user='user' v-else />
+  <transition name='fade'>
+    <Register @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && !is_login' />
+  </transition>
+  <transition name='fade'>
+    <Login @confirmed='confirmed' @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && is_login' />
+  </transition>
+  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :user='user' v-if='!is_not_logged' />
 </template>
 
 <script lang="ts">
@@ -27,6 +31,7 @@
       return {
         is_not_logged: true,
         user: null,
+        is_login: true,
       };
     },
 
@@ -35,6 +40,10 @@
       confirmed( params ) {
         this.is_not_logged = params[ 'confirm' ];
         this.user = params[ 'user' ];
+      },
+
+      toggleEntry( is_login ) {
+        this.is_login = is_login;
       },
 
       updateresident( new_resident ) {
@@ -108,6 +117,63 @@
 
   .box-rounded {
     border-radius: .4rem;
+  }
+
+  .fieldset--input {
+    text-align: left;
+  }
+
+  legend {
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  a.form-switcher {
+    line-height: 2rem;
+    color: rgba(100, 147, 165, 1);
+    text-decoration: none;
+  }
+
+  a.form-switcher:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  h3.form-header {
+    margin-top: 0;
+    padding-top: .8em;
+    padding-bottom: .8em;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .8s;
+  }
+
+  .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+    opacity: 0;
+  }
+
+  .form-activate {
+    border: 1px solid rgba(100, 147, 165, 1);
+    border-radius: .5em;
+    background-color: transparent;
+    color: rgba(100, 147, 165, 1);
+    font-weight: 600;
+    margin-right: .8em;
+    padding: .6em .5em;
+    text-transform: capitalize;
+  }
+
+  .form-activate:hover {
+    background-color: rgba(100, 147, 165, .33);
+  }
+
+  .form-activate:active {
+    background-color: rgba(100, 147, 165, .66);
+  }
+
+  .fieldset--borderless {
+    border-width: 0;
   }
 
 </style>

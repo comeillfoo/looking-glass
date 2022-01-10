@@ -1,33 +1,33 @@
 <template>
   <div class='box box--bordered box-rounded white-box box--padded-top'>
-    <h3>Анкета нового персонажа</h3>
+    <h3 class='form-header'>Анкета<br>нового персонажа</h3>
     <form @submit.prevent='register'>
-      <fieldset>
+      <fieldset class='fieldset--input'>
         <legend>имя</legend>
         <input type='text' v-model='username' placeholder='Вася Пупкин' /> 
       </fieldset>
-      <fieldset>
+      <fieldset class='fieldset--input'>
         <legend>пол</legend>
         <select v-model='fkSexName'>
           <option v-for='sex in sexes' v-bind:value='sex.name' :key='sex.name'>{{ sex.name }}</option>
         </select>
       </fieldset>
-      <fieldset>
+      <fieldset class='fieldset--input'>
         <legend>масть</legend>
         <select v-model='fkSuitName'>
           <option value=''>отсутствует</option>
           <option v-for='kingdom in kingdoms' v-bind:value='kingdom.fkSuitName' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
         </select>
       </fieldset>
-      <fieldset>
+      <fieldset  class='fieldset--input'>
         <legend>роль</legend>
         <select v-model='fkRoleName'>
           <option v-for='( role, idx ) in roles' v-bind:value='role.name' :key='idx'>{{ role.name }}</option>
         </select>
       </fieldset>
-      <fieldset>
-        <input type='submit' value='зарегистрироваться' />
-        <input type='reset' @click='reset' value='сбросить' />
+      <fieldset class='fieldset--borderless'>
+        <input class='form-activate' type='submit' value='зарегистрироваться' />
+        <input class='form-activate' type='reset' @click='reset' value='сбросить' />
       </fieldset>
       <fieldset v-if='user != null'>
         <strong>Ваш ИД: {{ user.id }}</strong><br>
@@ -35,6 +35,7 @@
         Он понадобиться вам при входе!
       </fieldset>
     </form>
+    <a class='form-switcher' @click='toggleEntry'>войти</a>
   </div>
 </template>
 
@@ -111,6 +112,10 @@
         }
       },
 
+      toggleEntry: function( ) {
+        this.$emit( 'toggleEntry', true );
+      },
+
       reset: function( ) {
         this.is_confirmed = false;
         this.user = null;
@@ -169,9 +174,6 @@
 
 <!-- Add 'scoped' attribute to limit CSS to this component only -->
 <style scoped>
-  h3 {
-    margin: 40px 0 0;
-  }
   ul {
     list-style-type: none;
     padding: 0;
@@ -179,8 +181,5 @@
   li {
     display: inline-block;
     margin: 0 10px;
-  }
-  a {
-    color: #42b983;
   }
 </style>

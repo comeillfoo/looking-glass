@@ -1,20 +1,22 @@
 <template>
   <div class='box box--bordered box-rounded white-box box--padded-top'>
-    <h3>Вход</h3>
+    <h3 class='form-header'>Вход</h3>
     <form @submit.prevent='login'>
-      <fieldset>
-        <label>ИД</label><input type='number' placeholder='4020' v-model='id' required />
+      <fieldset class='fieldset--input'>
+        <legend>ИД</legend>
+        <input type='number' placeholder='4020' v-model='id' required />
       </fieldset>
-      <fieldset>
-        <input type='submit' value='войти' />
-        <input type='reset' value='сбросить' @click='reset' />
+      <fieldset class='fieldset--borderless'>
+        <input class='form-activate' type='submit' value='войти' />
+        <input class='form-activate' type='reset' value='сбросить' @click='reset' />
       </fieldset>
       <fieldset v-if='is_confirmed'>
         <label><h4>{{ username }}. Это Вы?</h4></label>
-        <button type='button' @click='confirm'>да</button>
-        <button type='button' @click='reset'>нет</button>
+        <button class='form-activate' type='button' @click='confirm'>да</button>
+        <button class='form-activate' type='button' @click='reset'>нет</button>
       </fieldset>
     </form>
+    <a class='form-switcher' @click='toggleEntry'>зарегистрироваться</a>
   </div>
 </template>
 
@@ -57,6 +59,10 @@
         }
       },
 
+      toggleEntry: function( ) {
+        this.$emit( 'toggleEntry', false );
+      },
+
       reset: function( ) {
         this.is_confirmed = false;
       },
@@ -70,9 +76,6 @@
 
 <!-- Add 'scoped' attribute to limit CSS to this component only -->
 <style scoped>
-  h3 {
-    margin: 40px 0 0;
-  }
   ul {
     list-style-type: none;
     padding: 0;
@@ -80,8 +83,5 @@
   li {
     display: inline-block;
     margin: 0 10px;
-  }
-  a {
-    color: #42b983;
   }
 </style>
