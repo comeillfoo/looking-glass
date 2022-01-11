@@ -251,6 +251,55 @@
           </tfoot>
         </table>
       </div>
+
+      <h2 class='header header--underlined'>редактор прописок</h2>
+      <div class='container--left-shifted'>
+        <div>
+          <select name='registrations_edit' v-model='to_move.residentId' @change='receive_registrations_on_edit( $event )'>
+            <option value=''></option>
+            <option v-for='resident in residents' :key='resident.id' v-bind:value='resident.id'>{{ resident.name }}:{{ resident.id }}</option>
+          </select>
+        </div>
+
+        <table class='table--centred table--expanded'>
+          <thead class='row--underlined'>
+            <tr>
+              <th>№</th>
+              <th>дата выпуска</th>
+              <th>дата окончания</th>
+              <th>масть королевства</th>
+              <th>+/x</th>
+            </tr>
+          </thead>
+
+          <tbody class='row--underlined'>
+            <tr v-for='( registration, idx ) in to_move.registrations' :key='registration.id'>
+              <td>{{ idx + 1 }}</td>
+              <td>{{ registration.issueDate }}</td>
+              <td>{{ registration.expiryDate == null? 'бессрочно' : registration.expiryDate }}</td>
+              <td>{{ kingdoms.filter( ( kingdom ) => ( kingdom.id == registration.fkKingdomId ) )[ 0 ].fkSuitName }}</td>
+              <td><button type='button' class='btn-action btn-cross' @click='delete_resident_registration_by_id( registration.id )'>x</button></td>
+            </tr>
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <td>#</td>
+              <td>{{ new Date( ).toISOString( ).slice( 0, 10 ) }}</td>
+              <td>
+                бессрочно
+              </td>
+              <td>
+                <select v-model='to_move.destKingdom'>
+                  <option v-for='kingdom in possible_kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
+                </select>
+              </td>
+              <td><button type='button' class='btn-action btn-add' :class="{ 'btn-add-disabled' : is_move_disabled }" @click='move_to_kingdom' :disabled='is_move_disabled'>+</button></td>
+            </tr>
+          </tfoot>
+
+        </table>
+      </div>
     </section>
   </div>
 </template>
@@ -581,11 +630,6 @@
         default: '/api/get-weapons-by-resident-id'
       },
 
-      // queryKingdoms: {
-      //   type: String,
-      //   default: '/api/get-kingdoms'
-      // },
-
       queryUpdateResidentName: {
         type: String,
         default: '/api/update-resident-name-by-id'
@@ -631,6 +675,11 @@
         default: '/api/visit-to-kingdom'
       },
 
+      queryMoveToKingdom: {
+        type: String,
+        default: '/api/add-new-registration'
+      },
+
       queryAddNewTool: {
         type: String,
         default: '/api/add-new-tool'
@@ -670,6 +719,12 @@
           fkSuitName: "",
           fkRoleName: null,
         },
+
+        to_move: {
+          registrations: [],
+          residentId: '',
+          destKingdom: null
+        },
       };
     },
 
@@ -683,6 +738,18 @@
           console.log( typeof registrations );
           this.registrations = registrations;
         }
+      },
+
+      get_registrations: async function( id ) {
+        let regs_response = await fetch( `http://localhost:2154/alice${this.queryRegistrations}/${id}`, { method: 'GET' } );
+        console.log( regs_response );
+        if ( regs_response.status == 200 ) {
+          let registrations = await regs_response.json();
+          console.log( registrations );
+          console.log( typeof registrations );
+          return registrations;
+        }
+        return [];
       },
 
       receive_tools: async function( id ) {
@@ -709,18 +776,6 @@
         }
       },
 
-      // receive_kingdoms: async function( ) {
-      //   console.log( `trying to receive kingdoms` );
-      //   let kingdoms_response = await fetch( `http://localhost:2154/alice${this.queryKingdoms}`, { method: 'GET' } );
-      //   console.log( kingdoms_response );
-      //   if ( kingdoms_response.status == 200 ) {
-      //     let kingdoms = await kingdoms_response.json();
-      //     console.log( kingdoms );
-      //     console.log( typeof kingdoms );
-      //     this.kingdoms = kingdoms;
-      //   } 
-      // },
-
       logout: function() {
           this.$emit( 'confirmed', { confirm: true, user: null } );
       },
@@ -739,6 +794,13 @@
           console.log( typeof renamed_resident );
           this.$emit( 'updateresident', renamed_resident );
         } else console.log( 'unable to update name' );
+      },
+
+      receive_registrations_on_edit: async function( event ) {
+        const id = event.target.value;
+        if ( id == '' || id === null || id === undefined ) return;
+        console.log( `getting registrations for ${id}` );
+        this.to_move.registrations = await this.get_registrations( id );
       },
 
       visit_to_kingdom: async function( ) {
@@ -887,8 +949,28 @@
         if ( resident_registration_response.status == 200 ) {
           console.log( 'successfully deleted residents registration' );
           await this.receive_registrations( this.user.id );
+          if ( this.to_move.residentId != '' )
+            this.to_move.registrations = await this.get_registrations( this.to_move.residentId );
         }
-      }
+      },
+
+      move_to_kingdom: async function( ) {
+        console.log( 'trying to add an unlimited registration to another kingdom' );
+        let move_response = await fetch( `http://localhost:2154/alice${this.queryMoveToKingdom}`,
+          { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { residentId: this.to_move.residentId, destKingdom: this.to_move.destKingdom } )
+          } );
+        console.log( move_response );
+        if ( move_response.status == 200 ) {
+          await this.receive_registrations( this.user.id );
+          console.log( 'able to move to another kingdom' );
+          await this.receive_residents( );
+          if ( this.to_move.residentId != '' )
+            this.to_move.registrations = await this.get_registrations( this.to_move.residentId );
+        } else console.log( 'unable to move to another kingdom' );
+      },
     },
 
     computed: {
@@ -896,6 +978,7 @@
       is_gardener: function() { return this.user.fkRoleName == 'садовник' },
       is_leader: function() { return this.user.fkRoleName == 'правитель' },
       is_visit_disabled: function () { return this.to_visit.destKingdom == null; },
+      is_move_disabled: function() { return this.to_move.destKingdom == null; },
       is_tool_disabled: function () { return this.new_tool.suit == null || this.new_tool.name.replaceAll( ' ', '' ) == ''; },
       is_weapon_disabled: function () { return this.new_weapon.suit == null || this.new_weapon.name.replaceAll( ' ', '' ) == ''; },
       is_resident_disabled: function () { return this.new_resident.name.replaceAll( ' ', '' ) == '' || this.new_resident.fkRoleName == null || this.new_resident.fkSexName == null; },
@@ -908,6 +991,8 @@
           return this.kingdoms;
         else return this.kingdoms.filter( ( k ) => ( !unexpired.includes( k.id ) ) );
       },
+
+      // TODO: add computed property for possible kingdoms for moved resident
 
       spanDays: {
         get() {
