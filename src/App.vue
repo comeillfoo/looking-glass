@@ -1,7 +1,7 @@
 <template>
   <Register @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && !is_login' />
   <Login @confirmed='confirmed' @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && is_login' />
-  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :kingdoms='kingdoms' :user='user' v-if='!is_not_logged' />
+  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :kingdoms='statistics.kingdoms' :females='statistics.females' :males='statistics.males' :weaponsStat='statistics.weapons' :toolsStat='statistics.tools' :user='user' v-if='!is_not_logged' />
 </template>
 
 <script lang="ts">
@@ -36,6 +36,16 @@
         type: String,
         default: '/api/get-males-count'
       },
+
+      queryWeapons: {
+        type: String,
+        default: '/api/get-weapons-count'
+      },
+
+      queryTools: {
+        type: String,
+        default: '/api/get-tools-count'
+      }
     },
 
     data() {
@@ -43,9 +53,13 @@
         is_not_logged: true,
         user: null,
         is_login: true,
-        kingdoms: [],
-        females: [],
-        males: [],
+        statistics: {
+          kingdoms: [],
+          females: [],
+          males: [],
+          weapons: [],
+          tools: [],
+        },
       };
     },
 
@@ -72,7 +86,7 @@
           let kingdoms = await kingdoms_response.json();
           console.log( kingdoms );
           console.log( typeof kingdoms );
-          this.kingdoms = kingdoms;
+          this.statistics.kingdoms = kingdoms;
         } 
       },
 
@@ -84,7 +98,7 @@
           let females = await females_response.json();
           console.log( females );
           console.log( typeof females );
-          this.females = females;
+          this.statistics.females = females;
         } 
       },
 
@@ -96,7 +110,31 @@
           let males = await males_response.json();
           console.log( males );
           console.log( typeof males );
-          this.males = males;
+          this.statistics.males = males;
+        } 
+      },
+
+      receive_weapons: async function( ) {
+        console.log( `trying to receive weapons` );
+        let weapons_response = await fetch( `${this.base}${this.queryWeapons}`, { method: 'GET' } );
+        console.log( weapons_response );
+        if ( weapons_response.status == 200 ) {
+          let weapons = await weapons_response.json();
+          console.log( weapons );
+          console.log( typeof weapons );
+          this.statistics.weapons = weapons;
+        } 
+      },
+
+      receive_tools: async function( ) {
+        console.log( `trying to receive tools` );
+        let tools_response = await fetch( `${this.base}${this.queryTools}`, { method: 'GET' } );
+        console.log( tools_response );
+        if ( tools_response.status == 200 ) {
+          let tools = await tools_response.json();
+          console.log( tools );
+          console.log( typeof tools );
+          this.statistics.tools = tools;
         } 
       },
     },
@@ -105,6 +143,8 @@
       await this.receive_kingdoms();
       await this.receive_females();
       await this.receive_males();
+      await this.receive_weapons();
+      await this.receive_tools();
     }
   });
 </script>

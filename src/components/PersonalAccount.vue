@@ -183,8 +183,22 @@
 
     <section id='to-statistics' class='section--shrinked'>
       <h2 class='header header--underlined'>статистика</h2>
-      <div class='container--left-shifted'>
-        <DoughnutChart v-bind="doughnutChartProps" />
+      <div class='container--centre-shifted'>
+        <div class='chart--inlined' >
+          <DoughnutChart v-bind="doughnutKingdomsProps" />
+        </div>
+        <div class='chart--inlined' >
+          <DoughnutChart v-bind="doughnutFemalesProps" />
+        </div>
+        <div class='chart--inlined' >
+          <DoughnutChart v-bind="doughnutMalesProps" />
+        </div>
+        <div class='chart--inlined' >
+          <DoughnutChart v-bind="doughnutWeaponsProps" />
+        </div>
+        <div class='chart--inlined' >
+          <DoughnutChart v-bind="doughnutToolsProps" />
+        </div>
       </div>
     </section>
 
@@ -243,7 +257,7 @@
 
 <script lang='ts'>
   import { defineComponent } from 'vue';
-  import { computed, ref, toRef } from 'vue';
+  import { computed, toRef } from 'vue';
   import { DoughnutChart, useDoughnutChart } from "vue-chart-3";
   import { Chart, ChartData, ChartOptions, registerables } from "chart.js";
 
@@ -257,25 +271,120 @@
     },
 
     setup( props ) {
-      console.log( 'setup on' );
+      console.log( 'all setup starts' );
       const kingdoms = toRef( props, 'kingdoms' );
       const kingdomsValues = kingdoms.value.map( ( kingdom ) => ( kingdom.numberOfResidents ) );
       const kingdomsLabels = kingdoms.value.map( ( kingdom ) => ( kingdom.fkSuitName ) );
       console.log( kingdomsLabels );
       console.log( kingdomsValues );
-      // const females = toRef( props, 'females' );
-      // const femalesValues = females.value.map( ( female ) => ( female.females ) );
-      // console.log( femalesValues );
-      // const males = toRef( props, 'males' );
-      // const malesValues = males.value.map( ( male ) => ( male.males ) );
-      // console.log( malesValues );
+      const females = toRef( props, 'females' );
+      const femalesValues = females.value.map( ( female ) => ( female.females ) );
+      const femalesLabels = females.value.map( ( female ) => ( female.kingdom ) );
+      console.log( femalesLabels );
+      console.log( femalesValues );
+      const males = toRef( props, 'males' );
+      const malesValues = males.value.map( ( male ) => ( male.males ) );
+      const malesLabels = males.value.map( ( male ) => ( male.kingdom ) );
+      console.log( malesLabels );
+      console.log( malesValues );
+      const weapons = toRef( props, 'weaponsStat' );
+      const weaponsValues = weapons.value.map( ( weapon ) => ( weapon.weaponsNumber ) );
+      const weaponsLabels = weapons.value.map( ( weapon ) => ( weapon.kingdom ) );
+      console.log( weaponsLabels );
+      console.log( weaponsValues );
+      const tools = toRef( props, 'toolsStat' );
+      const toolsValues = tools.value.map( ( tool ) => ( tool.toolsNumber ) );
+      const toolsLabels = tools.value.map( ( tool ) => ( tool.kingdom ) );
+      console.log( toolsLabels );
+      console.log( toolsValues );
 
-      const toggleLegend = ref( true );
-      const testData = computed<ChartData<"doughnut">>(() => ({
+      console.log( 'setup kingdoms start' );
+      const kingdomsData = computed<ChartData<"doughnut">>(() => ({
         labels: kingdomsLabels,
         datasets: [
           {
             data: kingdomsValues,
+            backgroundColor: [
+              "#84BF04",
+              "#2C4002",
+              "#5A7302",
+              "#465902",
+            ],
+          },
+        ],
+      }));
+
+      const kingdomsOptions = computed<ChartOptions<"doughnut">>(() => ({
+        scales: {
+          myScale: {
+            type: "logarithmic",
+            position: "left",
+          },
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Число жителей в королевствах",
+          },
+        },
+      }));
+
+      const { doughnutChartProps: doughnutKingdomsProps, doughnutChartRef: doughnutKingdomsRef } = useDoughnutChart({
+        chartData: kingdomsData,
+        options: kingdomsOptions,
+      });
+      console.log( 'setup kingdoms end' );
+
+      console.log( 'setup females start' );
+      const femalesData = computed<ChartData<"doughnut">>(() => ({
+        labels: femalesLabels,
+        datasets: [
+          {
+            data: femalesValues,
+            backgroundColor: [
+              "#C72C37",
+              "#E34B45",
+              "#E9735F",
+              "#FEB079",
+            ],
+          },
+        ],
+      }));
+
+      const femalesOptions = computed<ChartOptions<"doughnut">>(() => ({
+        scales: {
+          myScale: {
+            type: "logarithmic",
+            position: "left",
+          },
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Число женщин в королевствах",
+          },
+        },
+      }));
+
+      const { doughnutChartProps: doughnutFemalesProps, doughnutChartRef: doughnutFemalesRef } = useDoughnutChart({
+        chartData: femalesData,
+        options: femalesOptions,
+      });
+      console.log( 'setup females end' );
+
+
+      console.log( 'setup males start' );
+      const malesData = computed<ChartData<"doughnut">>(() => ({
+        labels: malesLabels,
+        datasets: [
+          {
+            data: malesValues,
             backgroundColor: [
               "#77CEFF",
               "#0079AF",
@@ -286,36 +395,139 @@
         ],
       }));
 
-      const options = computed<ChartOptions<"doughnut">>(() => ({
+      const malesOptions = computed<ChartOptions<"doughnut">>(() => ({
         scales: {
           myScale: {
             type: "logarithmic",
-            position: toggleLegend.value ? "left" : "right",
+            position: "left",
           },
         },
         plugins: {
           legend: {
-            position: toggleLegend.value ? "top" : "bottom",
+            position: "bottom",
           },
           title: {
             display: true,
-            text: "Число жителей в королевствах",
+            text: "Число мужчин в королевствах",
           },
         },
       }));
 
-      const { doughnutChartProps, doughnutChartRef } = useDoughnutChart({
-        chartData: testData,
-        options,
+      const { doughnutChartProps: doughnutMalesProps, doughnutChartRef: doughnutMalesRef } = useDoughnutChart({
+        chartData: malesData,
+        options: malesOptions,
       });
+      console.log( 'setup males end' );
 
-      console.log( 'setup off' );
+
+      console.log( 'setup weapons start' );
+      const weaponsData = computed<ChartData<"doughnut">>(() => ({
+        labels: weaponsLabels,
+        datasets: [
+          {
+            data: weaponsValues,
+            backgroundColor: [
+              "#80585A",
+              "#FF646B",
+              "#FFB1B4",
+              "#803236",
+            ],
+          },
+        ],
+      }));
+
+      const weaponsOptions = computed<ChartOptions<"doughnut">>(() => ({
+        scales: {
+          myScale: {
+            type: "logarithmic",
+            position: "left",
+          },
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Число единиц оружия в королевствах",
+          },
+        },
+      }));
+
+      const { doughnutChartProps: doughnutWeaponsProps, doughnutChartRef: doughnutWeaponsRef } = useDoughnutChart({
+        chartData: weaponsData,
+        options: weaponsOptions,
+      });
+      console.log( 'setup weapons end' );
+
+
+      console.log( 'setup tools start' );
+      const toolsData = computed<ChartData<"doughnut">>(() => ({
+        labels: toolsLabels,
+        datasets: [
+          {
+            data: toolsValues,
+            backgroundColor: [
+              "#F2CB05",
+              "#594E14",
+              "#8C7B26",
+              "#F2B705",
+            ],
+          },
+        ],
+      }));
+
+      const toolsOptions = computed<ChartOptions<"doughnut">>(() => ({
+        scales: {
+          myScale: {
+            type: "logarithmic",
+            position: "left",
+          },
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Число единиц инструментов в королевствах",
+          },
+        },
+      }));
+
+      const { doughnutChartProps: doughnutToolsProps, doughnutChartRef: doughnutToolsRef } = useDoughnutChart({
+        chartData: toolsData,
+        options: toolsOptions,
+      });
+      console.log( 'setup tools end' );
+
+      console.log( 'all setup ends' );
 
       return {
-        testData,
-        options,
-        doughnutChartRef,
-        doughnutChartProps,
+        kingdomsData,
+        kingdomsOptions,
+        doughnutKingdomsProps,
+        doughnutKingdomsRef,
+
+        femalesData,
+        femalesOptions,
+        doughnutFemalesProps,
+        doughnutFemalesRef,
+
+        malesData,
+        malesOptions,
+        doughnutMalesProps,
+        doughnutMalesRef,
+
+        weaponsData,
+        weaponsOptions,
+        doughnutWeaponsProps,
+        doughnutWeaponsRef,
+
+        toolsData,
+        toolsOptions,
+        doughnutToolsProps,
+        doughnutToolsRef,     
       };
     },
 
@@ -335,6 +547,16 @@
       },
 
       males: {
+        type: Object,
+        default: null
+      },
+
+      weaponsStat: {
+        type: Object,
+        default: null
+      },
+
+      toolsStat: {
         type: Object,
         default: null
       },
@@ -821,6 +1043,10 @@
     text-align: left;
   }
 
+  .container--centre-shifted {
+    text-align: center;
+  }
+
   .table--centred {
     margin: 0 auto;
   }
@@ -881,5 +1107,10 @@
     margin: 0;
     background-color: rgb(242, 242, 242);
     width: 100%;
+  }
+
+  .chart--inlined {
+    display: inline-block;
+    width: 33%;
   }
 </style>
