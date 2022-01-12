@@ -263,4 +263,19 @@
     border-width: 0;
   }
 
+  input.for-text {
+    border-radius: .5em;
+    border: 1px solid rgba(100, 147, 165, 1);
+    background-color: transparent;
+    padding: .6em .5em;
+  }
+
+  select.for-choice {
+    border-radius: .5em;
+    border: 1px solid rgba(100, 147, 165, 1);
+    background-color: transparent;
+    padding: .6em .5em;
+    color: rgba(87, 89, 91, 1); 
+  }
+
 </style>

@@ -4,24 +4,24 @@
     <form @submit.prevent='register'>
       <fieldset class='fieldset--input'>
         <legend>имя</legend>
-        <input type='text' v-model='username' placeholder='Вася Пупкин' /> 
+        <input class='for-text' type='text' v-model='username' placeholder='Вася Пупкин' /> 
       </fieldset>
       <fieldset class='fieldset--input'>
         <legend>пол</legend>
-        <select v-model='fkSexName'>
+        <select v-model='fkSexName' class='for-choice'>
           <option v-for='sex in sexes' v-bind:value='sex.name' :key='sex.name'>{{ sex.name }}</option>
         </select>
       </fieldset>
       <fieldset class='fieldset--input'>
         <legend>масть</legend>
-        <select v-model='fkSuitName'>
+        <select v-model='fkSuitName' class='for-choice'>
           <option value=''>отсутствует</option>
           <option v-for='kingdom in kingdoms' v-bind:value='kingdom.fkSuitName' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
         </select>
       </fieldset>
       <fieldset  class='fieldset--input'>
         <legend>роль</legend>
-        <select v-model='fkRoleName'>
+        <select v-model='fkRoleName' class='for-choice'>
           <option v-for='( role, idx ) in roles' v-bind:value='role.name' :key='idx'>{{ role.name }}</option>
         </select>
       </fieldset>

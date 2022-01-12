@@ -29,10 +29,10 @@
             <h2 class='header--underlined'><span class='field--bolded field--capitalized'>идентификационный номер</span>: <span>{{ user.id }}</span></h2>
             <ul>
               <li>
-                <span class='field--bolded field--capitalized'>имя</span>: <span v-if='!is_name_edit_mode_enabled'>{{ user.name }}</span>
+                <span class='field--bolded field--capitalized'>имя</span>: <span v-if='!is_name_edit_mode_enabled' class='some-offset'>{{ user.name }}</span>
                 <span v-if='!is_name_edit_mode_enabled'><button type='button' class='btn-action btn-add' @click='set_name_edit_mode( true )'>&#9998;</button></span>
-                <span v-if='is_name_edit_mode_enabled'><input type='text' v-bind:placeholder='user.name' v-model='new_resident_name' required/></span>
-                <span v-if='is_name_edit_mode_enabled' ><button type='button' class='btn-action btn-add' @click='update_resident_name_by_id( user.id, new_resident_name ); set_name_edit_mode( false )'>&#x2713;</button></span>
+                <span v-if='is_name_edit_mode_enabled' class='some-offset'><input class='for-text' type='text' v-bind:placeholder='user.name' v-model='new_resident_name' required/></span>
+                <span v-if='is_name_edit_mode_enabled' class='some-offset'><button type='button' class='btn-action btn-add' @click='update_resident_name_by_id( user.id, new_resident_name ); set_name_edit_mode( false )'>&#x2713;</button></span>
                 <span v-if='is_name_edit_mode_enabled'><button type='button' class='btn-action btn-cross' @click='set_name_edit_mode( false )'>&#x2717;</button></span>
               </li>
               <li>
@@ -86,10 +86,10 @@
               <td>#</td>
               <td>{{ new Date( ).toISOString( ).slice( 0, 10 ) }}</td>
               <td>
-                <input type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' v-model='spanDays' required />
+                <input class='for-text' type='date' v-bind:min='new Date( ).toISOString( ).slice( 0, 10 )' v-model='spanDays' required />
               </td>
               <td>
-                <select v-model='to_visit.destKingdom'>
+                <select v-model='to_visit.destKingdom' class='for-choice'>
                   <option v-for='kingdom in possible_kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
@@ -127,10 +127,10 @@
             <tr>
               <td>#</td>
               <td>
-                <input type='text' v-model='new_tool.name' />
+                <input class='for-text' type='text' v-model='new_tool.name' />
               </td>
               <td>
-                <select v-model='new_tool.suit'>
+                <select v-model='new_tool.suit' class='for-choice'>
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
@@ -167,10 +167,10 @@
             <tr>
               <td>#</td>
               <td>
-                <input type='text' v-model='new_weapon.name' />
+                <input class='for-text' type='text' v-model='new_weapon.name' />
               </td>
               <td>
-                <select v-model='new_weapon.suit'>
+                <select v-model='new_weapon.suit' class='for-choice'>
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
@@ -229,20 +229,20 @@
           <tfoot>
             <tr>
               <td>#</td>
-              <td><input type='text' v-model='new_resident.name' placeholder='Вася Пупкин' /></td>
+              <td><input class='for-text' type='text' v-model='new_resident.name' placeholder='Вася Пупкин' /></td>
               <td>
-                <select v-model='new_resident.fkSexName'>
+                <select v-model='new_resident.fkSexName' class='for-choice'>
                   <option v-for='sex in sexes' v-bind:value='sex.name' :key='sex.name'>{{ sex.name }}</option>
                 </select>
               </td>
               <td>
-                <select v-model='new_resident.fkSuitName'>
+                <select v-model='new_resident.fkSuitName' class='for-choice'>
                   <option value=''>отсутствует</option>
                   <option v-for='kingdom in kingdoms' v-bind:value='kingdom.fkSuitName' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
               <td>
-                <select v-model='new_resident.fkRoleName'>
+                <select v-model='new_resident.fkRoleName' class='for-choice'>
                   <option v-for='( role, idx ) in roles' v-bind:value='role.name' :key='idx'>{{ role.name }}</option>
                 </select>
               </td>
@@ -252,10 +252,11 @@
         </table>
       </div>
 
-      <h2 class='header header--underlined'>редактор прописок</h2>
+      <h2 class='header header--underlined'>Переезды жителей</h2>
       <div class='container--left-shifted'>
-        <div>
-          <select name='registrations_edit' v-model='to_move.residentId' @change='receive_registrations_on_edit( $event )'>
+        <div class='container--right-shifted'>
+          <span><strong>Выберите жителя:</strong>&nbsp;&nbsp;</span>
+          <select class='for-choice padded-right' name='registrations_edit' v-model='to_move.residentId' @change='receive_registrations_on_edit( $event )'>
             <option value=''></option>
             <option v-for='resident in residents' :key='resident.id' v-bind:value='resident.id'>{{ resident.name }}:{{ resident.id }}</option>
           </select>
@@ -290,7 +291,7 @@
                 бессрочно
               </td>
               <td>
-                <select v-model='to_move.destKingdom'>
+                <select v-model='to_move.destKingdom' class='for-choice'>
                   <option v-for='kingdom in possible_kingdoms' v-bind:value='kingdom.id' :key='kingdom.id'>{{ kingdom.fkSuitName }}</option>
                 </select>
               </td>
@@ -1132,6 +1133,10 @@
     text-align: center;
   }
 
+  .container--right-shifted {
+    text-align: right;
+  }
+
   .table--centred {
     margin: 0 auto;
   }
@@ -1178,9 +1183,25 @@
     background-color: rgba(242, 191, 98, 1); 
   }
 
+  .btn-cross:hover {
+    background-color: rgba(202, 151, 58, 1);
+  }
+
+  .btn-cross:active {
+    background-color: rgba(252, 101, 8, 1);
+  }
+
   .btn-add {
     border: 1px solid rgba(100, 147, 165, 1);
     background-color: rgba(100, 147, 165, 1);
+  }
+
+  .btn-add:hover {
+    background-color: rgba(60, 107, 125, 1);
+  }
+
+  .btn-add:active {
+    background-color: rgba(0, 47, 65, 1);
   }
 
   .btn-add-disabled {
@@ -1197,5 +1218,13 @@
   .chart--inlined {
     display: inline-block;
     width: 33%;
+  }
+
+  .padded-right {
+    margin-right: 21%;
+  }
+
+  .some-offset {
+    margin-right: .2em;
   }
 </style>

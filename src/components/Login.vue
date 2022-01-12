@@ -4,7 +4,7 @@
     <form @submit.prevent='login'>
       <fieldset class='fieldset--input'>
         <legend>ИД</legend>
-        <input type='number' placeholder='4020' v-model='id' required />
+        <input class='for-text' type='number' placeholder='4020' v-model='id' required />
       </fieldset>
       <fieldset class='fieldset--borderless'>
         <input class='form-activate' type='submit' value='войти' />
