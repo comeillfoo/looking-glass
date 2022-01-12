@@ -1,5 +1,5 @@
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production'
-    ? 'https://se.ifmo.ru/~s284733/dist/'
+    ? 'https://se.ifmo.ru/~s284733/alice/'
     : '/'
 }

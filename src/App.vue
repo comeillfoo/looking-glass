@@ -1,7 +1,7 @@
 <template>
   <Register @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && !is_login' />
   <Login @confirmed='confirmed' @toggleEntry='toggleEntry' :base='base' v-if='is_not_logged && is_login' />
-  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' :base='base' :kingdoms='statistics.kingdoms' :females='statistics.females' :males='statistics.males' :weaponsStat='statistics.weapons' :toolsStat='statistics.tools' :user='user' v-if='!is_not_logged' />
+  <PersonalAccount @confirmed='confirmed' @updateresident='updateresident' @updateStatistics='update_statistics' @forceRerender='force_rerender' :base='base' :kingdoms='statistics.kingdoms' :females='statistics.females' :males='statistics.males' :weaponsStat='statistics.weapons' :toolsStat='statistics.tools' :user='user' v-if='!is_not_logged' :key='reRenderKey' />
 </template>
 
 <script lang="ts">
@@ -59,6 +59,7 @@
           males: [],
           weapons: [],
           tools: [],
+          reRenderKey: 0
         },
       };
     },
@@ -137,14 +138,22 @@
           this.statistics.tools = tools;
         } 
       },
+
+      update_statistics: async function() {
+        await this.receive_kingdoms();
+        await this.receive_females();
+        await this.receive_males();
+        await this.receive_weapons();
+        await this.receive_tools();
+      },
+
+      force_rerender() {
+        this.reRenderKey += 1;
+      },
     },
 
     async mounted() {
-      await this.receive_kingdoms();
-      await this.receive_females();
-      await this.receive_males();
-      await this.receive_weapons();
-      await this.receive_tools();
+      await this.update_statistics();
     }
   });
 </script>

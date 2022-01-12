@@ -834,6 +834,8 @@
           console.log( typeof tool );
           await this.receive_tools( this.user.id );
           console.log( 'new tool successfully added' );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         } else console.log( 'unable to add new tool' );
       },
 
@@ -852,6 +854,8 @@
           console.log( typeof weapon );
           await this.receive_weapons( this.user.id );
           console.log( 'new weapon successfully added' );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         } else console.log( 'unable to add new weapon' );
       },
 
@@ -874,6 +878,8 @@
           console.log( typeof resident );
           await this.receive_residents( );
           console.log( 'new resident successfully added' );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         } else console.log( 'unable to add new resident' );
       },
 
@@ -920,6 +926,8 @@
         if ( resident_response.status == 200 ) {
           console.log( 'successfully deleted resident' );
           await this.receive_residents();
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         }
       },
 
@@ -930,6 +938,8 @@
         if ( resident_tool_response.status == 200 ) {
           console.log( 'successfully deleted residents tool' );
           await this.receive_tools( this.user.id );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         }
       },
 
@@ -940,6 +950,8 @@
         if ( resident_weapon_response.status == 200 ) {
           console.log( 'successfully deleted residents weapon' );
           await this.receive_weapons( this.user.id );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         }
       },
 
@@ -952,6 +964,8 @@
           await this.receive_registrations( this.user.id );
           if ( this.to_move.residentId != '' )
             this.to_move.registrations = await this.get_registrations( this.to_move.residentId );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         }
       },
 
@@ -970,6 +984,8 @@
           await this.receive_residents( );
           if ( this.to_move.residentId != '' )
             this.to_move.registrations = await this.get_registrations( this.to_move.residentId );
+          this.$emit( 'updateStatistics', null );
+          this.$emit( 'forceRerender', null );
         } else console.log( 'unable to move to another kingdom' );
       },
     },
